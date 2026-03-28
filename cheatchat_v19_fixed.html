@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Google</title>
+<link rel="icon" href="https://www.google.com/favicon.ico"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Courier New',monospace;background:#0a0a0d;color:#c8c8d0;height:100vh;overflow:hidden;font-size:13px}
+
+/* AUTH */
+.auth-wrap{display:flex;height:100vh;align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 40%,#12102a 0%,#0a0a0d 70%);padding:2rem}
+.auth-card{background:#111118;border:1px solid #1e1e2e;border-radius:16px;padding:2.2rem;width:100%;max-width:340px;box-shadow:0 8px 40px rgba(0,0,0,0.5)}
+.auth-logo{font-size:24px;font-weight:700;color:#e8e8f0;margin-bottom:2px;letter-spacing:-0.5px}.auth-logo span{color:#7c6af7}
+.auth-sub{font-size:10px;color:#3a3a4a;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:1.6rem}
+.fl{font-size:10px;letter-spacing:0.12em;color:#4a4a5a;text-transform:uppercase;margin-bottom:5px;margin-top:14px}.fl:first-of-type{margin-top:0}
+.fi{width:100%;background:#0a0a0d;border:1px solid #222232;border-radius:8px;padding:10px 13px;font-size:13px;font-family:'Courier New',monospace;color:#c8c8d0;outline:none;transition:border-color 0.15s,box-shadow 0.15s}
+.fi:focus{border-color:#7c6af7;box-shadow:0 0 0 3px rgba(124,106,247,0.12)}.fi::placeholder{color:#252535}
+.abtn{width:100%;margin-top:16px;padding:11px;border-radius:8px;font-size:12px;font-family:'Courier New',monospace;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;border:none;background:linear-gradient(135deg,#7c6af7,#6a58e0);color:#fff;transition:all 0.15s;box-shadow:0 2px 12px rgba(124,106,247,0.3)}
+.abtn:hover:not(:disabled){background:linear-gradient(135deg,#8a78f8,#7c6af7);box-shadow:0 4px 16px rgba(124,106,247,0.4)}.abtn:disabled{opacity:0.4;cursor:not-allowed}
+.adiv{display:flex;align-items:center;gap:10px;margin:14px 0 0;color:#252535;font-size:10px}
+.adiv::before,.adiv::after{content:'';flex:1;height:1px;background:#1a1a28}
+.aghost{width:100%;padding:10px;border-radius:8px;font-size:11px;font-family:'Courier New',monospace;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;border:1px solid #1e1e2e;background:none;color:#5a5a6a;transition:all 0.15s;margin-top:8px}
+.aghost:hover{border-color:#7c6af7;color:#c8c8d0;background:#0f0f18}
+.aerr{font-size:11px;color:#c06060;margin-top:6px;min-height:14px}
+
+/* HOME */
+#homeScreen{display:none;height:100vh;flex-direction:row}
+.home-sb{width:72px;background:#080809;border-right:1px solid #151520;display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:8px;overflow-y:auto;flex-shrink:0}
+.home-sb::-webkit-scrollbar{width:0}
+.spill{width:46px;height:46px;border-radius:14px;background:#111118;border:1px solid #1e1e2e;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#c8c8d0;transition:all 0.18s;position:relative;flex-shrink:0;user-select:none;overflow:visible}
+.spill:hover{border-color:#7c6af7;border-radius:18px}.spill.active{border-color:#7c6af7;background:#1a1528;border-radius:18px}
+.spill.add{color:#7c6af7;font-size:20px;border-style:dashed}.spill.add:hover{background:#1a1528}
+.home-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:2rem;background:#0a0a0d}
+.home-logo{font-size:24px;font-weight:700;color:#e8e8f0;letter-spacing:-0.5px}.home-logo span{color:#7c6af7}
+.ubar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#111118;border:1px solid #1e1e2e;border-radius:10px;width:100%;max-width:280px}
+.ubar-av{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;flex-shrink:0}
+.ubar-n{font-size:11px;color:#c8c8d0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ubar-lo{background:none;border:none;color:#3a3a4a;cursor:pointer;font-size:10px;font-family:'Courier New',monospace;text-transform:uppercase;transition:color 0.15s}
+.ubar-lo:hover{color:#c06060}
+.slist{width:100%;max-width:280px;display:flex;flex-direction:column;gap:5px}
+.srow{display:flex;align-items:center;gap:9px;padding:9px 12px;background:#111118;border:1px solid #1a1a28;border-radius:10px;cursor:pointer;transition:all 0.15s;position:relative}
+.srow:hover{border-color:#7c6af7;background:#141420}
+.srow-leave{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#3a2a2a;font-size:11px;font-family:'Courier New',monospace;cursor:pointer;padding:3px 6px;border-radius:4px;opacity:0;transition:all 0.15s;pointer-events:none}
+.srow:hover .srow-leave{opacity:1;pointer-events:auto;color:#905050}.srow-leave:hover{background:#1a0808;color:#e07070!important}
+.srow-av{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.no-srv{font-size:11px;color:#3a3a4a}
+.hbtn{padding:10px 14px;border-radius:9px;font-size:11px;font-family:'Courier New',monospace;letter-spacing:0.05em;cursor:pointer;border:1px solid #1e1e2e;background:#111118;color:#c8c8d0;transition:all 0.15s;text-transform:uppercase;text-align:center;width:100%;max-width:280px}
+.hbtn:hover{background:#1a1a28;border-color:#7c6af7}.hbtn.prim{background:linear-gradient(135deg,#7c6af7,#6a58e0);border-color:transparent;color:#fff;box-shadow:0 2px 12px rgba(124,106,247,0.3)}.hbtn.prim:hover{box-shadow:0 4px 18px rgba(124,106,247,0.4)}
+
+/* APP */
+#app{display:none;height:100vh;flex-direction:row}
+.srv-strip{width:72px;background:#080809;border-right:1px solid #151520;display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:8px;overflow-y:auto;flex-shrink:0}
+.srv-strip::-webkit-scrollbar{width:0}
+.sidebar{width:220px;background:#0d0d12;border-right:1px solid #151520;display:flex;flex-direction:column;flex-shrink:0}
+.sh{padding:13px 15px;border-bottom:1px solid #151520;background:#0d0d12}
+.sh-name{font-size:13px;font-weight:700;color:#e8e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.2px}
+.sh-acts{display:flex;gap:10px;margin-top:4px}
+.sh-act{font-size:10px;color:#4a4a5a;cursor:pointer;letter-spacing:0.05em;transition:color 0.12s}.sh-act:hover{color:#7c6af7}
+.sb-body{flex:1;overflow-y:auto;padding-bottom:10px}.sb-body::-webkit-scrollbar{width:2px}.sb-body::-webkit-scrollbar-thumb{background:#1e1e2e;border-radius:2px}
+.sec{padding:10px 15px 4px;font-size:9px;letter-spacing:0.16em;color:#3a3a4a;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
+.sec-add{background:none;border:none;color:#3a3a4a;cursor:pointer;font-size:16px;line-height:1;font-family:monospace;transition:color 0.12s}.sec-add:hover{color:#7c6af7}
+.ch{display:flex;align-items:center;gap:7px;padding:6px 9px 6px 15px;cursor:pointer;color:#4a4a5a;font-size:12px;transition:all 0.12s;border-radius:6px;margin:1px 7px;user-select:none}
+.ch:hover{background:#141420;color:#c8c8d0}.ch.active{background:#1a1528;color:#d8d0f8}
+.ch-icon{font-size:12px;flex-shrink:0;width:16px;text-align:center;color:#3a3a4a}.ch.active .ch-icon{color:#7c6af7}
+.ch-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-badge{background:#7c6af7;color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;min-width:16px;text-align:center;flex-shrink:0}
+.ch-bot-dot{width:5px;height:5px;border-radius:50%;background:#3a9a6a;flex-shrink:0;margin-left:auto}
+.ch-lock{font-size:9px;color:#4a4a5a;flex-shrink:0;margin-left:auto;opacity:0.6}
+.vc-sub{padding:2px 15px 4px 37px}
+.vc-user{display:flex;align-items:center;gap:5px;padding:2px 0;font-size:10px;color:#3a3a4a}
+.vc-uav{width:16px;height:16px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:#fff;flex-shrink:0}
+.vc-live{display:flex;align-items:center;gap:3px;font-size:9px;color:#3a7a3a;margin-left:auto;flex-shrink:0}
+.vc-dot{width:4px;height:4px;border-radius:50%;background:#3a7a3a}
+.sb-footer{padding:9px 11px;border-top:1px solid #151520;display:flex;align-items:center;gap:7px;flex-shrink:0;background:#0d0d12}
+.me-av{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;position:relative;cursor:default}
+.me-name{font-size:11px;color:#c8c8d0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role-badge{font-size:9px;padding:1px 5px;border-radius:4px;letter-spacing:0.05em;font-weight:700;flex-shrink:0}
+.rb-owner{background:#2a1a3a;color:#b090f0;border:1px solid #4a2a7a}
+.rb-admin{background:#1a2a3a;color:#70a0f0;border:1px solid #2a4a7a}
+.rb-op{background:#1a3a2a;color:#70c090;border:1px solid #2a6a4a}
+.rb-member{background:#1a1a28;color:#5a5a6a;border:1px solid #252535}
+.icon-btn{background:none;border:none;color:#4a4a5a;cursor:pointer;font-size:13px;padding:3px;border-radius:4px;font-family:monospace;flex-shrink:0;transition:color 0.12s}.icon-btn:hover{color:#c06060}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#0a0a0d;min-width:0}
+.welcome-view{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#2a2a3a;gap:10px}
+.welcome-icon{font-size:32px}.welcome-sub{font-size:11px;letter-spacing:0.06em}
+.view-hdr{padding:11px 18px;border-bottom:1px solid #151520;font-size:11px;color:#5a5a6a;letter-spacing:0.08em;text-transform:uppercase;flex-shrink:0;display:flex;align-items:center;gap:7px;background:#0d0d12}
+.vh-icon{color:#7c6af7;font-size:12px}
+
+/* TEXT CHAT */
+.text-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.msgs{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:4px;scroll-behavior:smooth}
+.msgs::-webkit-scrollbar{width:3px}.msgs::-webkit-scrollbar-thumb{background:#1e1e2e;border-radius:2px}
+@keyframes mIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sIn{from{opacity:0}to{opacity:1}}
+.tmsg-av{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px;position:relative;cursor:pointer}
+.tmsg-av:hover .ctx{display:block}
+.ctx{display:none;position:absolute;top:0;left:36px;background:#111118;border:1px solid #222232;border-radius:8px;z-index:50;min-width:155px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,0.7)}
+.ctx-i{padding:8px 13px;font-size:11px;color:#c8c8d0;cursor:pointer;white-space:nowrap;transition:background 0.1s}
+.ctx-i:hover{background:#1a1a28}.ctx-i.red{color:#e07070}.ctx-i.red:hover{background:#2a1515}
+.ctx-sep{height:1px;background:#1a1a28}
+.tmsg-body{flex:1;min-width:0}
+.tmsg-meta{display:flex;align-items:baseline;gap:7px;margin-bottom:2px}
+.tmsg-name{font-size:11px;font-weight:700;letter-spacing:0.04em}
+.tn-me{color:#7c6af7}.tn-them{color:#d8d8e8}.tn-bot{color:#3a9a6a}
+.tmsg-role{font-size:9px;padding:1px 4px;border-radius:3px;font-weight:700}
+.tmsg-time{font-size:10px;color:#2a2a3a}
+.tmsg-text{font-size:12px;color:#a8a8b8;line-height:1.65;word-break:break-word}
+.tmsg-text.bot-txt{color:#b8e8cc}
+.tmsg-text a{color:#7c6af7;text-decoration:none}.tmsg-text a:hover{text-decoration:underline}
+.tmsg-img{max-width:320px;max-height:260px;border-radius:8px;margin-top:6px;display:block;cursor:pointer;border:1px solid #1a1a28;transition:opacity 0.15s}.tmsg-img:hover{opacity:0.85}
+.tmsg{display:flex;gap:10px;align-items:flex-start;animation:mIn 0.18s cubic-bezier(.22,.68,0,1.2) both;position:relative;padding:4px 6px;border-radius:8px;transition:background 0.1s}
+.tmsg:hover{background:#0f0f18}
+.tmsg.mentioned{background:rgba(124,106,247,0.07);border-left:2px solid #7c6af7;padding-left:4px}
+.tmsg.mentioned:hover{background:rgba(124,106,247,0.12)}
+.mention{background:rgba(124,106,247,0.18);color:#b8acff;border-radius:3px;padding:0 3px;font-weight:700}
+.mention.me{background:rgba(124,106,247,0.3);color:#d8d0ff}
+.tmsg:hover .msg-del{opacity:1}
+.msg-del{position:absolute;top:4px;right:6px;background:none;border:none;color:#5a2a2a;cursor:pointer;font-size:11px;font-family:'Courier New',monospace;opacity:0;transition:opacity 0.15s;padding:2px 6px;border-radius:4px}.msg-del:hover{color:#e07070;background:#1a0808}
+.tmsg-link-embed{margin-top:6px;background:#111118;border:1px solid #1a1a28;border-left:2px solid #7c6af7;border-radius:6px;padding:7px 11px;max-width:320px}
+.tle-url{font-size:10px;color:#7c6af7;word-break:break-all;text-decoration:none}.tle-url:hover{text-decoration:underline}
+.timg-btn{width:32px;height:32px;border-radius:7px;border:1px solid #1e1e2e;background:#111118;color:#7c6af7;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;line-height:1}.timg-btn:hover{border-color:#7c6af7;background:#1a1528}
+/* Lightbox */
+#imgLightbox{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;z-index:500;cursor:pointer}
+#imgLightbox.show{display:flex}
+#imgLightbox img{max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 12px 50px rgba(0,0,0,0.8)}
+.sysmsg{font-size:10px;color:#2a2a3a;text-align:center;letter-spacing:0.05em;padding:6px 0;animation:sIn 0.25s ease both}
+.input-wrap{padding:11px 14px;border-top:1px solid #151520;flex-shrink:0;display:flex;gap:7px;background:#0d0d12}
+.tinput{flex:1;padding:9px 14px;background:#111118;border:1px solid #1e1e2e;border-radius:9px;font-size:12px;font-family:'Courier New',monospace;color:#c8c8d0;outline:none;transition:border-color 0.15s,box-shadow 0.15s}
+.tinput:focus{border-color:#7c6af7;box-shadow:0 0 0 3px rgba(124,106,247,0.1)}.tinput::placeholder{color:#252535}
+.tsend{width:32px;height:32px;border-radius:8px;border:none;background:linear-gradient(135deg,#7c6af7,#6a58e0);color:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;box-shadow:0 2px 8px rgba(124,106,247,0.3)}
+.tsend:hover{box-shadow:0 4px 14px rgba(124,106,247,0.4)}.tsend:active{transform:scale(0.92)}
+.restrict-bar{background:#12100a;border-top:1px solid #2a200a;padding:9px 18px;font-size:11px;color:#8a6a3a;text-align:center;flex-shrink:0}
+.bot-typing{display:flex;align-items:center;gap:8px;padding:4px 0}
+.bdots{display:flex;gap:3px}.bd{width:5px;height:5px;border-radius:50%;background:#3a7a5a}
+@keyframes dp{0%,60%,100%{opacity:0.3;transform:scale(0.8)}30%{opacity:1;transform:scale(1)}}
+.bd{animation:dp 1.2s ease-in-out infinite}.bd:nth-child(2){animation-delay:.2s}.bd:nth-child(3){animation-delay:.4s}
+.bot-tn{font-size:10px;color:#3a7a5a;letter-spacing:0.04em}
+
+/* VOICE */
+.voice-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.vc-lobby{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:2rem}
+.vc-lobby-icon{font-size:28px;color:#252535}
+.vc-lobby-name{font-size:15px;font-weight:700;color:#c8c8d0;letter-spacing:-0.3px}
+.vc-lobby-sub{font-size:11px;color:#3a3a4a;letter-spacing:0.04em}
+.vc-lobby-mems{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;max-width:280px;min-height:42px;align-items:center}
+.vc-lm-av{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;position:relative;cursor:default}
+.join-vc-btn{padding:11px 28px;border-radius:9px;border:none;background:linear-gradient(135deg,#7c6af7,#6a58e0);color:#fff;font-size:12px;font-family:'Courier New',monospace;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.12s;margin-top:4px;box-shadow:0 2px 12px rgba(124,106,247,0.3)}
+.join-vc-btn:hover{box-shadow:0 4px 18px rgba(124,106,247,0.4)}.join-vc-btn:active{transform:scale(0.96)}
+.vgrid{flex:1;display:grid;padding:0;gap:4px;overflow:hidden;align-items:stretch;justify-items:stretch}
+.vtile{background:#111118;border-radius:0;overflow:hidden;position:relative;width:100%;height:100%;border:none;border-right:1px solid #1a1a28}
+.vtile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.tile-av{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#111118}
+.av-c{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff}
+.tlabel{position:absolute;bottom:7px;left:9px;font-size:10px;color:#c8c8d0;background:rgba(10,10,13,0.8);padding:2px 8px;border-radius:4px;letter-spacing:0.05em}
+.vcbar{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 18px;background:#0d0d12;border-top:1px solid #151520;flex-shrink:0}
+.cbtn{width:42px;height:42px;border-radius:50%;border:1px solid #1e1e2e;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:#0a0a0d;color:#c8c8d0;font-size:14px;font-family:monospace}
+.cbtn:hover{border-color:#7c6af7}.cbtn.off{background:#1a1a28;border-color:#3a3a4a;color:#5a5a6a}
+.cbtn.endc{background:#2a1515;border-color:#a05050;color:#e07070;width:46px;height:46px}.cbtn.endc:hover{background:#3a1515}
+.vtile{transition:box-shadow 0.15s,border-color 0.15s}
+.vtile.speaking{box-shadow:inset 0 0 0 3px #23a55a,0 0 0 3px #23a55a;border-color:#23a55a}
+.vtile.speaking .tlabel{color:#fff;background:rgba(35,165,90,0.85)}
+.vtile.speaking .av-c{box-shadow:0 0 0 3px #23a55a}
+.vtile{cursor:pointer}
+.vtile:fullscreen,.vtile:-webkit-full-screen,.vtile:-moz-full-screen{border-radius:0;width:100vw;height:100vh;aspect-ratio:unset}
+.vtile:fullscreen video,.vtile:-webkit-full-screen video,.vtile:-moz-full-screen video{width:100%;height:100%;object-fit:contain;background:#000}
+.vtile:fullscreen .tlabel,.vtile:-webkit-full-screen .tlabel{font-size:14px;padding:4px 14px;bottom:14px;left:14px}
+.vtile:fullscreen .tile-av,.vtile:-webkit-full-screen .tile-av{background:#0a0a0d}
+#fsHint{position:absolute;top:7px;right:9px;font-size:9px;color:rgba(200,200,208,0.4);pointer-events:none;letter-spacing:0.05em}
+
+/* BANNED */
+.banned-view{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:2rem}
+.banned-icon{font-size:30px;color:#5a2a2a}.banned-title{font-size:14px;color:#e07070;font-weight:700}
+.banned-sub{font-size:11px;color:#5a3a3a;max-width:200px;line-height:1.6}
+
+/* TOOLTIP */
+.tip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#111118;border:1px solid #2a2a4a;border-radius:6px;padding:5px 11px;font-size:11px;color:#e8e8f0;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:999}
+.tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#2a2a4a}
+.has-tip{position:relative;cursor:default}.has-tip:hover>.tip{opacity:1}
+
+/* MODALS */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:100}
+.modal-bg.show{display:flex}
+.modal{background:#111118;border:1px solid #1e1e2e;border-radius:14px;padding:1.6rem;width:330px;max-height:88vh;overflow-y:auto;box-shadow:0 12px 50px rgba(0,0,0,0.6)}
+.modal-title{font-size:14px;font-weight:700;color:#e8e8f0;margin-bottom:4px;letter-spacing:-0.2px}
+.modal-sub{font-size:11px;color:#4a4a5a;margin-bottom:1.3rem;line-height:1.6}
+.mi{width:100%;background:#0a0a0d;border:1px solid #1e1e2e;border-radius:8px;padding:9px 13px;font-size:13px;font-family:'Courier New',monospace;color:#c8c8d0;outline:none;margin-bottom:10px;transition:border-color 0.15s,box-shadow 0.15s}
+.mi:focus{border-color:#7c6af7;box-shadow:0 0 0 3px rgba(124,106,247,0.1)}.mi::placeholder{color:#252535}
+.mtype-row{display:flex;gap:6px;margin-bottom:12px}
+.mt-btn{flex:1;padding:9px;border-radius:8px;border:1px solid #1e1e2e;background:#0a0a0d;color:#5a5a6a;cursor:pointer;font-size:11px;font-family:'Courier New',monospace;text-align:center;transition:all 0.12s}
+.mt-btn.sel{border-color:#7c6af7;color:#d8d0f8;background:#1a1528}
+.mrow{display:flex;gap:6px;margin-top:4px}
+.m-cancel{flex:1;padding:10px;border-radius:8px;border:1px solid #1e1e2e;background:none;color:#5a5a6a;cursor:pointer;font-size:11px;font-family:'Courier New',monospace;text-transform:uppercase;transition:all 0.12s}.m-cancel:hover{color:#c8c8d0;border-color:#3a3a4a}
+.m-ok{flex:1;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#7c6af7,#6a58e0);color:#fff;cursor:pointer;font-size:11px;font-family:'Courier New',monospace;text-transform:uppercase;transition:all 0.12s;box-shadow:0 2px 10px rgba(124,106,247,0.3)}.m-ok:hover{box-shadow:0 4px 16px rgba(124,106,247,0.4)}
+.m-danger{flex:1;padding:10px;border-radius:8px;border:none;background:#2a1010;color:#e07070;cursor:pointer;font-size:11px;font-family:'Courier New',monospace;text-transform:uppercase;transition:all 0.12s}.m-danger:hover{background:#3a1515}
+.invite-box{background:#0a0a0d;border:1px solid #1e1e2e;border-radius:8px;padding:11px 15px;font-family:'Courier New',monospace;font-size:15px;color:#7c6af7;letter-spacing:0.15em;text-align:center;cursor:pointer;user-select:all;margin-bottom:8px}
+.invite-box:hover{border-color:#7c6af7}
+.merr{font-size:11px;color:#c06060;margin-top:5px;min-height:14px}
+
+/* Private channel toggle */
+.priv-toggle-row{display:flex;align-items:center;gap:9px;margin-bottom:12px;cursor:pointer;user-select:none}
+.priv-track{width:30px;height:16px;border-radius:8px;background:#1e1e2e;position:relative;transition:background 0.2s;flex-shrink:0}
+.priv-track.on{background:#7c6af7}
+.priv-thumb{width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform 0.2s}
+.priv-track.on .priv-thumb{transform:translateX(14px)}
+.priv-lbl{font-size:11px;color:#5a5a6a}
+.priv-note{font-size:10px;color:#3a3a4a;line-height:1.5;margin-bottom:10px}
+
+/* Mod */
+.member-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #141420}
+.member-row:last-child{border-bottom:none}
+.mav{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;flex-shrink:0}
+.minfo{flex:1;min-width:0}
+.mname{font-size:11px;color:#c8c8d0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrole{font-size:9px;letter-spacing:0.05em}
+.macts{display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:140px}
+.sm-btn{padding:2px 6px;border-radius:4px;border:1px solid #222232;background:none;color:#5a5a6a;cursor:pointer;font-size:9px;font-family:'Courier New',monospace;white-space:nowrap;transition:all 0.1s}
+.sm-btn:hover{border-color:#7c6af7;color:#c8c8d0}
+.sm-btn.red{border-color:#3a1515;color:#905050}.sm-btn.red:hover{background:#2a1515;color:#e07070;border-color:#a05050}
+
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111118;color:#7c6af7;font-size:11px;font-family:'Courier New',monospace;letter-spacing:0.08em;padding:6px 16px;border-radius:20px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:300;border:1px solid #7c6af7;box-shadow:0 4px 20px rgba(124,106,247,0.2)}
+.toast.show{opacity:1}
+
+/* Status bar */
+.status-bar{padding:5px 18px;background:#0d0d12;border-top:1px solid #151520;font-size:10px;color:#2a2a3a;letter-spacing:0.06em;flex-shrink:0;display:flex;gap:8px;align-items:center}
+.status-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.status-dot.green{background:#3a7a3a}.status-dot.amber{background:#7a6a1a}.status-dot.red{background:#7a2a2a}
+
+/* Online users panel */
+.online-row{display:flex;align-items:center;gap:8px;padding:4px 15px;transition:background 0.1s}
+.online-row:hover{background:#141420}
+.online-av{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;flex-shrink:0;position:relative}
+.online-pulse{position:absolute;bottom:-2px;right:-2px;width:8px;height:8px;border-radius:50%;background:#3a9a6a;border:2px solid #0d0d12}
+.online-name{font-size:11px;color:#8888a0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.online-name.is-me{color:#c8c8d0}
+
+/* Drag-drop overlay */
+.drop-overlay{position:absolute;inset:0;background:rgba(124,106,247,0.13);border:2px dashed #7c6af7;border-radius:10px;display:none;align-items:center;justify-content:center;z-index:80;pointer-events:none;flex-direction:column;gap:8px}
+.drop-overlay.active{display:flex}
+.drop-overlay-icon{font-size:28px;color:#7c6af7}
+.drop-overlay-lbl{font-size:12px;color:#b8acff;letter-spacing:0.06em}
+.text-view{position:relative}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div class="auth-wrap" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">cheat<span>chat</span></div>
+    <div class="auth-sub">accounts · saved chats · always online</div>
+    <div id="loginForm">
+      <div class="fl">username</div><input class="fi" id="loginUser" placeholder="username..." autocomplete="username"/>
+      <div class="fl">password</div><input class="fi" id="loginPass" placeholder="password..." type="password"/>
+      <button class="abtn" onclick="doLogin()">sign in</button>
+      <div class="aerr" id="loginErr"></div>
+      <div class="adiv">or</div>
+      <button class="aghost" onclick="showReg()">create account</button>
+    </div>
+    <div id="regForm" style="display:none">
+      <div class="fl">username</div><input class="fi" id="regUser" placeholder="pick a username..."/>
+      <div class="fl">password</div><input class="fi" id="regPass" placeholder="4+ chars..." type="password"/>
+      <div class="fl">confirm</div><input class="fi" id="regPass2" placeholder="confirm..." type="password"/>
+      <div class="fl">display name</div><input class="fi" id="regDisplay" placeholder="how others see you..."/>
+      <button class="abtn" onclick="doRegister()">create account</button>
+      <div class="aerr" id="regErr"></div>
+      <div class="adiv">or</div>
+      <button class="aghost" onclick="showLoginF()">sign in instead</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="homeScreen">
+  <div class="home-sb" id="homeSb"><div class="spill add" onclick="showCreateModal()">+</div></div>
+  <div class="home-main">
+    <div class="home-logo">cheat<span>chat</span></div>
+    <div class="ubar">
+      <div class="ubar-av" id="homeAv"></div>
+      <div class="ubar-n" id="homeUn"></div>
+      <button class="ubar-lo" onclick="doLogout()">sign out</button>
+    </div>
+    <div class="slist" id="srvList"></div>
+    <div class="no-srv" id="noSrvMsg" style="display:none">no servers yet</div>
+    <div class="hbtn prim" onclick="showCreateModal()">+ create server</div>
+    <div class="hbtn" onclick="showJoinModal()">&#9658; join with code</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="srv-strip" id="srvStrip"></div>
+  <div class="sidebar">
+    <div class="sh">
+      <div class="sh-name" id="srvName"></div>
+      <div class="sh-acts">
+        <span class="sh-act" onclick="showInviteModal()">&#9670; invite</span>
+        <span class="sh-act" id="manageBtn" style="display:none" onclick="showModPanel()">&#9632; manage</span>
+        <span class="sh-act" onclick="showGroqModal()">&#9632; ai bot</span>
+      </div>
+    </div>
+    <div class="sb-body">
+      <div class="sec">text channels<button class="sec-add" id="addTxtBtn" onclick="openAddChan('text')">+</button></div>
+      <div id="txtChanList"></div>
+      <div class="sec" style="margin-top:5px">voice channels<button class="sec-add" id="addVcBtn" onclick="openAddChan('voice')">+</button></div>
+      <div id="vcChanList"></div>
+    </div>
+    <div style="border-top:1px solid #151520;flex-shrink:0">
+      <div style="padding:8px 15px 4px;font-size:9px;letter-spacing:0.16em;color:#3a3a4a;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between">
+        online <span id="onlineCount" style="color:#3a7a3a">0</span>
+      </div>
+      <div id="onlineList" style="max-height:140px;overflow-y:auto;padding-bottom:4px"></div>
+    </div>
+    <div class="sb-footer">
+      <div class="me-av has-tip" id="meAv"><div class="tip" id="meTip"></div></div>
+      <div class="me-name" id="meName"></div>
+      <div class="role-badge" id="myRole"></div>
+      <button class="icon-btn" onclick="leaveServer()">&#9632;</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="welcome-view" id="welcomeView"><div class="welcome-icon">&#9670;</div><div class="welcome-sub">pick a channel</div></div>
+    <div class="text-view" id="textView" style="display:none">
+      <div class="view-hdr">
+        <span class="vh-icon">#</span><span id="txtViewName"></span>
+      </div>
+      <div class="drop-overlay" id="dropOverlay"><div class="drop-overlay-icon">&#9660;</div><div class="drop-overlay-lbl">drop image to send</div></div>
+      <div class="msgs" id="msgsArea"></div>
+      <div class="restrict-bar" id="restrictBar" style="display:none">you are restricted from sending messages</div>
+      <div class="input-wrap" id="inputWrap">
+        <button class="timg-btn" onclick="document.getElementById('imgFileIn').click()" title="send image">+</button>
+        <input type="file" id="imgFileIn" accept="image/*" style="display:none" onchange="sendImage(this)"/>
+        <input class="tinput" id="txtInput" placeholder="message... (type @bot to chat with AI)" onkeydown="if(event.key==='Enter')sendText()"/>
+        <button class="tsend" onclick="sendText()">&#9658;</button>
+      </div>
+    </div>
+    <div class="voice-view" id="voiceView" style="display:none">
+      <div class="view-hdr"><span class="vh-icon">&#9670;</span><span id="vcViewName"></span><span style="margin-left:auto;font-size:10px;color:#3a7a3a" id="vcCount"></span></div>
+      <div class="vc-lobby" id="vcLobby">
+        <div class="vc-lobby-icon">&#9670;</div>
+        <div class="vc-lobby-name" id="vcLobbyName"></div>
+        <div class="vc-lobby-sub">who's in here</div>
+        <div class="vc-lobby-mems" id="vcLobbyMems"></div>
+        <button class="join-vc-btn" onclick="joinVoiceNow()">&#9654; join voice</button>
+      </div>
+      <div class="vgrid" id="vgrid" style="display:none"></div>
+      <div class="vcbar" id="vcbar" style="display:none">
+        <button class="cbtn" id="micBtn" onclick="toggleMic()">&#9679;</button>
+        <button class="cbtn" id="camBtn" onclick="toggleCam()">&#9646;&#9646;</button>
+        <button class="cbtn endc" onclick="leaveVoice()">&#9632;</button>
+      </div>
+      <div class="status-bar"><div class="status-dot" id="vcStatusDot"></div><span id="vcStatusTxt"></span></div>
+    </div>
+    <div class="banned-view" id="bannedView" style="display:none">
+      <div class="banned-icon">&#9632;</div>
+      <div class="banned-title">you are banned</div>
+      <div class="banned-sub" id="bannedSub"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODALS -->
+<div class="modal-bg" id="createModal"><div class="modal">
+  <div class="modal-title">create server</div>
+  <div class="modal-sub">you'll get an invite code to share. anyone can join anytime — no one needs to be online first.</div>
+  <input class="mi" id="srvNameIn" placeholder="server name..." maxlength="60"/>
+  <div class="mrow"><button class="m-cancel" onclick="closeModals()">cancel</button><button class="m-ok" id="createOkBtn" onclick="createServer()">create</button></div>
+  <div class="merr" id="createErr"></div>
+</div></div>
+
+<div class="modal-bg" id="joinModal"><div class="modal">
+  <div class="modal-title">join a server</div>
+  <div class="modal-sub">enter the invite code. the server uses peer-to-peer mesh — no one needs to be the host.</div>
+  <input class="mi" id="joinCodeIn" placeholder="invite code..."/>
+  <div class="mrow"><button class="m-cancel" onclick="closeModals()">cancel</button><button class="m-ok" id="joinOkBtn" onclick="doJoinServer()">join</button></div>
+  <div class="merr" id="joinErr"></div>
+</div></div>
+
+<div class="modal-bg" id="inviteModal"><div class="modal">
+  <div class="modal-title">invite people</div>
+  <div class="modal-sub">share this code — anyone can join anytime.</div>
+  <div class="invite-box" id="inviteBox" onclick="copyInvite()"></div>
+  <div style="font-size:11px;color:#3a3a4a;text-align:center;margin-bottom:10px">click to copy</div>
+  <button class="m-cancel" style="width:100%" onclick="closeModals()">close</button>
+</div></div>
+
+<div class="modal-bg" id="addChanModal"><div class="modal">
+  <div class="modal-title">add channel</div>
+  <div class="mtype-row">
+    <div class="mt-btn sel" id="mt-text" onclick="selChanType('text'"># text</div>
+    <div class="mt-btn" id="mt-voice" onclick="selChanType('voice')">&#9670; voice</div>
+  </div>
+  <input class="mi" id="chanNameIn" placeholder="channel name..." maxlength="40"/>
+  <div class="priv-toggle-row" onclick="togglePrivChan()">
+    <div class="priv-track" id="privTrack"><div class="priv-thumb"></div></div>
+    <div class="priv-lbl" id="privLbl">public channel</div>
+  </div>
+  <div id="privUsersWrap" style="display:none">
+    <div class="priv-note">enter usernames who can see &amp; chat (comma-separated). owners &amp; admins always have access.</div>
+    <input class="mi" id="privUsersIn" placeholder="e.g. alice, bob, charlie" style="margin-bottom:6px"/>
+  </div>
+  <div class="mrow"><button class="m-cancel" onclick="closeModals()">cancel</button><button class="m-ok" onclick="confirmAddChan()">create</button></div>
+</div></div>
+
+<div class="modal-bg" id="modModal"><div class="modal" style="width:350px">
+  <div class="modal-title">&#9632; server management</div>
+  <div class="modal-sub" id="modSub"></div>
+  <div id="modList"></div>
+  <div class="mrow" style="margin-top:10px"><button class="m-cancel" onclick="closeModals()">close</button></div>
+</div></div>
+
+
+      <div class="btoggle-lbl" id="botToggleLbl">bot disabled</div>
+    </div>
+  </div>
+  <div class="mrow"><button class="m-cancel" onclick="closeModals()">cancel</button><button class="m-ok" onclick="saveBotSettings()">save</button></div>
+</div></div>
+      <div class="btoggle-lbl" id="botToggleLbl">bot disabled</div>
+    </div>
+  </div>
+  <div class="mrow"><button class="m-cancel" onclick="closeModals()">cancel</button><button class="m-ok" onclick="saveBotSettings()">save</button></div>
+</div></div>
+
+<div class="modal-bg" id="tempBanModal"><div class="modal">
+  <div class="modal-title">temp ban</div>
+  <div class="modal-sub">how many minutes?</div>
+  <input class="mi" id="tbDur" placeholder="e.g. 60" type="number" min="1"/>
+  <div class="mrow"><button class="m-cancel" onclick="closeModals()">cancel</button><button class="m-danger" onclick="confirmTempBan()">ban</button></div>
+  <div class="merr" id="tbErr"></div>
+</div></div>
+
+
+<div class="modal-bg" id="groqModal"><div class="modal">
+  <div class="modal-title">&#9632; ai bot</div>
+  <div class="modal-sub">type <strong>@bot</strong> in any channel. server admins set the key once — everyone gets the bot.</div>
+  <div id="groqSharedStatus" style="display:none;font-size:11px;color:#3a9a6a;margin-bottom:10px;padding:7px 10px;background:#0a1a0e;border:1px solid #1a3a22;border-radius:6px"></div>
+  <div id="groqAdminSection">
+    <div style="font-size:10px;color:#4a4a5a;margin-bottom:5px;text-transform:uppercase;letter-spacing:.1em">groq api key <span style="color:#3a3a4a">(admin only · free at console.groq.com/keys)</span></div>
+    <input class="mi" id="groqKeyIn" placeholder="gsk_... (leave blank to use embedded shared key)" type="password"/>
+    <div style="font-size:10px;color:#4a4a5a;margin-bottom:5px;margin-top:8px;text-transform:uppercase;letter-spacing:.1em">model</div>
+    <select class="mi" id="groqModelIn" style="cursor:pointer">
+      <option value="llama-3.3-70b-versatile">llama 3.3 70b (recommended)</option>
+      <option value="llama3-70b-8192">llama3 70b</option>
+      <option value="llama3-8b-8192">llama3 8b (fastest)</option>
+      <option value="mixtral-8x7b-32768">mixtral 8x7b</option>
+      <option value="gemma2-9b-it">gemma2 9b</option>
+      <option value="deepseek-r1-distill-llama-70b">deepseek r1</option>
+    </select>
+    <div style="font-size:10px;color:#4a4a5a;margin-bottom:5px;margin-top:8px;text-transform:uppercase;letter-spacing:.1em">bot personality</div>
+    <textarea class="mi" id="groqSysIn" placeholder="You are a helpful assistant..." style="resize:vertical;min-height:60px;font-size:11px"></textarea>
+    <div class="mrow"><button class="m-cancel" onclick="closeModals()">cancel</button><button class="m-ok" onclick="saveGroqSettings()">save for everyone</button></div>
+  </div>
+  <div id="groqMemberClose" style="margin-top:8px"><button class="m-cancel" style="width:100%" onclick="closeModals()">close</button></div>
+</div></div>
+<div id="imgLightbox" onclick="this.classList.remove('show')"><img id="imgLightboxImg" src="" alt=""/></div>
+<div class="toast" id="toast"></div>
+
+<!-- Trystero — uses BitTorrent trackers as free always-on relay, no server needed -->
+<script>
+// ═══════════════════════════════════════════════════════════
+//  cheatchat — Supabase backend
+//  Real-time chat across ANY device, ANY network.
+//  Messages stored in the cloud, delivered instantly.
+// ═══════════════════════════════════════════════════════════
+const SUPA_URL = "https://lxsvnqheprsisczqlmra.supabase.co";
+// ⚠️ REPLACE with your anon/public JWT key from Supabase → Project Settings → API
+// It must start with "eyJ..." (NOT "sb_publishable_...")
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4c3ZucWhlcHJzaXNjenFsbXJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NTI2MzEsImV4cCI6MjA5MDIyODYzMX0.S2IW38I3OMC7BlGsd05uhfNH0e2Tep2XtkGXDzM1b8k";
+
+// Supabase REST + Realtime helper
+const supa = {
+  async req(method, path, body) {
+    const r = await fetch(SUPA_URL + '/rest/v1/' + path, {
+      method,
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': method === 'POST' ? 'return=representation' : ''
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!r.ok) { const t = await r.text(); throw new Error(t); }
+    return r.status === 204 ? null : r.json();
+  },
+  get(path)        { return this.req('GET', path); },
+  post(path, body) { return this.req('POST', path, body); },
+  patch(path, body){ return this.req('PATCH', path, body); },
+  del(path)        { return this.req('DELETE', path); },
+  channel(name) {
+    // Supabase Realtime via WebSocket
+    const ws_url = SUPA_URL.replace('https','wss') + '/realtime/v1/websocket?apikey=' + SUPA_KEY + '&vsn=1.0.0';
+    const ws = new WebSocket(ws_url);
+    const subs = {};
+    let joined = false;
+    const queue = [];
+    ws.onopen = () => {
+      ws.send(JSON.stringify({topic:'realtime:'+name, event:'phx_join', payload:{config:{broadcast:{self:false},presence:{key:''}}}, ref:'1'}));
+    };
+    ws.onmessage = e => {
+      const msg = JSON.parse(e.data);
+      if (msg.event === 'phx_reply' && !joined) { joined = true; queue.forEach(m => ws.send(JSON.stringify(m))); queue.length = 0; }
+      if (msg.event === 'broadcast' && subs[msg.payload?.event]) subs[msg.payload.event](msg.payload.payload);
+      // heartbeat
+      if (msg.event === 'phx_reply' || msg.topic === 'phoenix') return;
+    };
+    // heartbeat every 25s
+    const hb = setInterval(() => { if(ws.readyState===1) ws.send(JSON.stringify({topic:'phoenix',event:'heartbeat',payload:{},ref:'hb'})); }, 25000);
+    return {
+      on(event, cb) { subs[event] = cb; return this; },
+      send(event, payload) {
+        const m = {topic:'realtime:'+name, event:'broadcast', payload:{event, payload}, ref:'b'};
+        if (joined) ws.send(JSON.stringify(m)); else queue.push(m);
+      },
+      close() { clearInterval(hb); ws.close(); }
+    };
+  }
+};
+
+// ═══════════════════════════════════
+//  SHARED BOT CONFIG  ← fill this in once, bot works for EVERYONE
+//  Get a free key at https://console.groq.com/keys
+// ═══════════════════════════════════
+const SHARED_GROQ_KEY   = '';   // ← paste your gsk_... key here
+const SHARED_GROQ_MODEL = 'llama-3.3-70b-versatile';
+const SHARED_GROQ_SYSP  = 'You are a helpful assistant in a group chat. Be concise and friendly.';
+
+// ═══════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════
+const rc=s=>{const c=['#534AB7','#0F6E56','#993C1D','#993556','#185FA5','#3B6D11','#854F0B'];let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%c.length;return c[h]};
+const ini=n=>String(n).split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'??';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const ts=()=>{const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')};
+const genCode=()=>{const c='abcdefghjkmnpqrstuvwxyz23456789';let s='';for(let i=0;i<8;i++)s+=c[Math.floor(Math.random()*c.length)];return s};
+const showToast=m=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)};
+const closeModals=()=>document.querySelectorAll('.modal-bg').forEach(m=>m.classList.remove('show'));
+const roleRank=r=>({owner:4,admin:3,op:2,member:1,restricted:0}[r]||1);
+const roleLbl=r=>r||'member';
+const roleCls=r=>({owner:'rb-owner',admin:'rb-admin',op:'rb-op'}[r]||'rb-member');
+const hashP=p=>{let h=0;for(let i=0;i<p.length;i++)h=(Math.imul(31,h)+p.charCodeAt(i))|0;return h.toString(36)};
+const LS={get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+
+// ═══════════════════════════════════
+//  STATE
+// ═══════════════════════════════════
+let CU=null, servers=[], CS=null;
+let newChanType='text', pendingTB=null, newChanPrivate=false;
+let _channel=null; // active Supabase realtime channel
+
+// ═══════════════════════════════════
+//  AUTH (cloud accounts via Supabase)
+// ═══════════════════════════════════
+window.showLoginF=()=>{document.getElementById('loginForm').style.display='';document.getElementById('regForm').style.display='none';document.getElementById('loginErr').textContent=''};
+window.showReg=()=>{document.getElementById('regForm').style.display='';document.getElementById('loginForm').style.display='none';document.getElementById('regErr').textContent=''};
+
+window.doLogin=async()=>{
+  const u=document.getElementById('loginUser').value.trim().toLowerCase();
+  const p=document.getElementById('loginPass').value;
+  if(!u||!p){document.getElementById('loginErr').textContent='> fill in all fields';return}
+  document.getElementById('loginErr').textContent='> signing in...';
+  try{
+    const rows=await supa.get('users?username=eq.'+encodeURIComponent(u)+'&select=*');
+    if(!rows||!rows.length){document.getElementById('loginErr').textContent='> account not found';return}
+    const acc=rows[0];
+    if(acc.pw!==hashP(p)){document.getElementById('loginErr').textContent='> wrong password';return}
+    CU={u:acc.username,dn:acc.display_name||acc.username};
+    sessionStorage.setItem('cc_s',JSON.stringify(CU));
+    // Load servers list from cloud
+    servers=acc.servers?JSON.parse(acc.servers):[];
+    document.getElementById('loginErr').textContent='';
+    enterHome();
+  }catch(e){document.getElementById('loginErr').textContent='> '+e.message}
+};
+
+window.doRegister=async()=>{
+  const raw=document.getElementById('regUser').value.trim();
+  const u=raw.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  const p=document.getElementById('regPass').value,p2=document.getElementById('regPass2').value;
+  const dn=document.getElementById('regDisplay').value.trim()||raw||u;
+  if(!u||!p){document.getElementById('regErr').textContent='> fill in all fields';return}
+  if(u.length<2){document.getElementById('regErr').textContent='> username too short';return}
+  if(p.length<4){document.getElementById('regErr').textContent='> password must be 4+ chars';return}
+  if(p!==p2){document.getElementById('regErr').textContent='> passwords do not match';return}
+  document.getElementById('regErr').textContent='> creating account...';
+  try{
+    const existing=await supa.get('users?username=eq.'+encodeURIComponent(u)+'&select=username');
+    if(existing&&existing.length){document.getElementById('regErr').textContent='> "'+u+'" is taken';return}
+    await supa.post('users',{username:u,pw:hashP(p),display_name:dn,servers:'[]'});
+    CU={u,dn};sessionStorage.setItem('cc_s',JSON.stringify(CU));
+    servers=[];
+    document.getElementById('regErr').textContent='';
+    enterHome();
+  }catch(e){document.getElementById('regErr').textContent='> '+e.message}
+};
+
+window.doLogout=async()=>{
+  // Clean up voice call first
+  if(_vc.inCall){
+    if(_channel)_channel.send('vc_leave',{username:CU?.u,chan_id:_vc.chanId});
+    await leaveVoiceClean();
+  }
+  if(_channel){_channel.send('offline',{username:CU?.u});_channel.close();_channel=null;}
+  if(window._onlineHB){clearInterval(window._onlineHB);window._onlineHB=null;}
+  if(CS&&CU)try{supa.del('presence?server_code=eq.'+CS.code+'&username=eq.'+CU.u);}catch{}
+  clearOnlinePanel();
+  sessionStorage.removeItem('cc_s');CU=null;servers=[];CS=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('homeScreen').style.display='none';
+  document.getElementById('authScreen').style.display='flex';
+  showLoginF();
+};
+
+// ═══════════════════════════════════
+//  HOME
+// ═══════════════════════════════════
+function enterHome(){
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('app').style.display='none';
+  document.getElementById('homeScreen').style.display='flex';
+  const av=document.getElementById('homeAv');av.style.background=rc('u'+CU.u);av.textContent=ini(CU.dn);
+  document.getElementById('homeUn').textContent=CU.dn+' (@'+CU.u+')';
+  // servers already loaded at login; fallback to LS for offline
+  if(!servers||!servers.length)servers=LS.get('cc_srvs_'+CU.u)||[];
+  renderHomeServers();
+}
+
+function renderHomeServers(){
+  const list=document.getElementById('srvList'),noMsg=document.getElementById('noSrvMsg'),hs=document.getElementById('homeSb');
+  list.innerHTML='';hs.innerHTML='<div class="spill add" onclick="showCreateModal()">+</div>';
+  if(!servers.length){noMsg.style.display='block';return}
+  noMsg.style.display='none';
+  servers.forEach(srv=>{
+    const row=document.createElement('div');row.className='srow';
+    row.innerHTML='<div class="srow-av" style="background:'+rc(srv.code)+'">'+ini(srv.name)+'</div>'
+      +'<div style="flex:1;min-width:0"><div style="font-size:11px;color:#c8c8d0">'+esc(srv.name)+'</div>'
+      +'<div style="font-size:10px;color:#3a3a4a">'+srv.code+'</div></div>'
+      +'<button class="srow-leave" onclick="leaveServerByCode(event,&quot;'+esc(srv.code)+'&quot;)">leave</button>';
+    row.onclick=()=>openServer(srv);list.appendChild(row);
+    const sb=document.createElement('div');sb.className='spill has-tip';
+    sb.style.cssText='background:'+rc(srv.code)+';color:#fff;font-size:10px';
+    sb.innerHTML=ini(srv.name)+'<div class="tip">'+esc(srv.name)+'</div>';
+    sb.onclick=()=>openServer(srv);hs.appendChild(sb);
+  });
+}
+
+async function saveSrvList(){
+  LS.set('cc_srvs_'+CU.u,servers);
+  try{await supa.patch('users?username=eq.'+CU.u,{servers:JSON.stringify(servers)})}catch{}
+}
+
+window.leaveServerByCode=async(e,code)=>{
+  e.stopPropagation();servers=servers.filter(s=>s.code!==code);
+  await saveSrvList();renderHomeServers();showToast('left server');
+};
+
+window.showCreateModal=()=>{document.getElementById('srvNameIn').value='';document.getElementById('createErr').textContent='';document.getElementById('createModal').classList.add('show');setTimeout(()=>document.getElementById('srvNameIn').focus(),50)};
+window.showJoinModal=()=>{document.getElementById('joinCodeIn').value='';document.getElementById('joinErr').textContent='';document.getElementById('joinModal').classList.add('show');setTimeout(()=>document.getElementById('joinCodeIn').focus(),50)};
+window.showInviteModal=()=>{document.getElementById('inviteBox').textContent=CS?CS.code:'';document.getElementById('inviteModal').classList.add('show')};
+window.copyInvite=()=>{navigator.clipboard.writeText(CS?CS.code:'').then(()=>showToast('invite code copied!')).catch(()=>showToast(CS?CS.code:''))};
+
+window.createServer=async()=>{
+  const name=document.getElementById('srvNameIn').value.trim();
+  if(!name){document.getElementById('createErr').textContent='> enter a server name';return}
+  document.getElementById('createOkBtn').disabled=true;
+  const code=genCode();
+  const channels={text:[{id:'general',name:'general'},{id:'homework',name:'homework'}],voice:[]};
+  try{
+    await supa.post('servers',{code,name,channels:JSON.stringify(channels),owner:CU.u});
+    await supa.post('roles',{server_code:code,username:CU.u,role:'owner'});
+    const srv={name,code};
+    servers.push(srv);await saveSrvList();
+    closeModals();document.getElementById('createOkBtn').disabled=false;
+    renderHomeServers();openServer(srv);
+  }catch(e){
+    document.getElementById('createErr').textContent='> '+e.message;
+    document.getElementById('createOkBtn').disabled=false;
+  }
+};
+
+window.doJoinServer=async()=>{
+  const code=document.getElementById('joinCodeIn').value.trim().toLowerCase().replace(/\s/g,'');
+  if(!code||code.length<4){document.getElementById('joinErr').textContent='> enter a valid code';return}
+  document.getElementById('joinOkBtn').disabled=true;
+  try{
+    const rows=await supa.get('servers?code=eq.'+code+'&select=*');
+    if(!rows||!rows.length){document.getElementById('joinErr').textContent='> server not found';document.getElementById('joinOkBtn').disabled=false;return}
+    const meta=rows[0];
+    // check ban
+    const bans=await supa.get('bans?server_code=eq.'+code+'&username=eq.'+CU.u+'&select=*');
+    if(bans&&bans.length){const b=bans[0];if(b.ban_type==='perm'||(b.ban_type==='temp'&&new Date(b.until)>new Date())){document.getElementById('joinErr').textContent='> you are banned';document.getElementById('joinOkBtn').disabled=false;return}}
+    // set role if not exists
+    const roles=await supa.get('roles?server_code=eq.'+code+'&username=eq.'+CU.u+'&select=*');
+    if(!roles||!roles.length) await supa.post('roles',{server_code:code,username:CU.u,role:'member'});
+    const srv={name:meta.name,code};
+    if(!servers.find(s=>s.code===code))servers.push(srv);
+    await saveSrvList();
+    closeModals();document.getElementById('joinOkBtn').disabled=false;
+    renderHomeServers();openServer(srv);
+  }catch(e){
+    const msg=e.message||'';
+    let friendly='> '+msg;
+    if(msg.toLowerCase().includes('fetch')||msg.toLowerCase().includes('network')||msg.toLowerCase().includes('failed')){
+      friendly='> connection failed — check your internet and try again';
+    } else if(msg.toLowerCase().includes('401')||msg.toLowerCase().includes('403')||msg.toLowerCase().includes('unauthorized')){
+      friendly='> server auth error — please refresh the page';
+    } else if(msg.toLowerCase().includes('cors')){
+      friendly='> open this file via a web server, not directly from your desktop';
+    }
+    document.getElementById('joinErr').textContent=friendly;
+    document.getElementById('joinOkBtn').disabled=false;
+    console.error('[doJoinServer]',e);
+  }
+};
+
+// ═══════════════════════════════════
+//  OPEN SERVER
+// ═══════════════════════════════════
+async function openServer(srv){
+  // Clean up any active voice call before switching servers
+  if(_vc.inCall){
+    if(_channel)_channel.send('vc_leave',{username:CU.u,chan_id:_vc.chanId});
+    await leaveVoiceClean();
+  }
+  if(_channel){_channel.send('offline',{username:CU.u});_channel.close();_channel=null;}
+  clearOnlinePanel();
+  CS=srv;
+  try{
+    const rows=await supa.get('servers?code=eq.'+srv.code+'&select=*');
+    if(!rows||!rows.length){showToast('server not found');return}
+    const meta=rows[0];
+    srv.name=meta.name;
+    srv.channels=typeof meta.channels==='string'?JSON.parse(meta.channels):meta.channels;
+    srv.chanUnread={};(srv.channels.text||[]).forEach(ch=>{srv.chanUnread[ch.id]=0});
+    // my role
+    const rr=await supa.get('roles?server_code=eq.'+srv.code+'&username=eq.'+CU.u+'&select=*');
+    srv.myRole=(rr&&rr.length)?rr[0].role:'member';
+    // check ban
+    const bb=await supa.get('bans?server_code=eq.'+srv.code+'&username=eq.'+CU.u+'&select=*');
+    if(bb&&bb.length){const b=bb[0];if(b.ban_type==='perm'||(b.ban_type==='temp'&&new Date(b.until)>new Date())){
+      setupAppUI(srv);buildSrvStrip();renderSidebar();showView('banned');
+      document.getElementById('bannedSub').textContent='you are banned from this server.';return;
+    }}
+    setupAppUI(srv);buildSrvStrip();renderSidebar();showView('welcome');renderMyRole();
+    // Load cloud bot config for this server
+    try{
+      const bc=await supa.get('bot_configs?server_code=eq.'+srv.code+'&select=*');
+      if(bc&&bc.length)srv.botCfg={apiKey:bc[0].api_key,model:bc[0].model,systemPrompt:bc[0].system_prompt};
+    }catch{}
+    // Subscribe to realtime broadcast channel for this server
+    _channel=supa.channel('server:'+srv.code);
+    _channel
+      .on('msg', data=>{
+        const msg={...data,isMe:data.username===CU.u};
+        const chanId=data.chan_id;
+        if(CS===srv&&srv.activeChan===chanId&&srv.activeChanType==='text'){
+          renderMsg(msg);playNotif();
+          if(!data.username?.startsWith('__bot__'))maybeGroqRespond(srv,chanId,data.name,data.text||'',data.username,false);
+        } else {
+          srv.chanUnread[chanId]=(srv.chanUnread[chanId]||0)+1;
+          if(CS===srv)renderSidebar();
+          playNotif();
+        }
+      })
+      .on('delete_msg', data=>{
+        const el=document.querySelector('[data-msgid="'+CSS.escape(data.id)+'"]');if(el)el.remove();
+      })
+      .on('update_channels', data=>{
+        srv.channels=data.channels;if(CS===srv)renderSidebar();
+      })
+      .on('update_role', data=>{
+        if(data.username===CU.u){srv.myRole=data.role;if(CS===srv){renderMyRole();updateInputBar();}}
+      })
+      .on('ban', data=>{
+        if(data.username===CU.u){showView('banned');document.getElementById('bannedSub').textContent='you have been banned.';}
+      })
+      .on('online', data=>{
+        if(data.username&&data.username!==CU.u){
+          addOnlineUser(data.username,data.dn);
+          // re-announce ourselves so they see us too
+          setTimeout(()=>{if(_channel)_channel.send('online',{username:CU.u,dn:CU.dn});},300);
+        }
+      })
+      .on('offline', data=>{
+        removeOnlineUser(data.username);
+      })
+      .on('vc_join', async data=>{
+        if(!_vc.inCall||data.username===CU.u||data.chan_id!==_vc.chanId)return;
+        const pc=createPeerConn(data.username,data.dn);
+        const offer=await pc.createOffer();await pc.setLocalDescription(offer);
+        _channel.send('vc_signal',{from:CU.u,dn:CU.dn,to:data.username,type:'offer',sdp:pc.localDescription,chan_id:_vc.chanId});
+      })
+      .on('vc_signal', async data=>{
+        if(data.to!==CU.u||!_vc.inCall||data.chan_id!==_vc.chanId)return;
+        if(data.type==='offer'){
+          const pc=createPeerConn(data.from,data.dn);
+          await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+          // Flush any ICE candidates that arrived before remote description was set
+          for(const c of (_vc.iceBuf[data.from]||[])){try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch{}}
+          delete _vc.iceBuf[data.from];
+          const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
+          _channel.send('vc_signal',{from:CU.u,dn:CU.dn,to:data.from,type:'answer',sdp:pc.localDescription,chan_id:_vc.chanId});
+        }else if(data.type==='answer'){
+          const pc=_vc.peers[data.from];
+          if(pc&&pc.signalingState!=='stable'){
+            await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+            // Flush buffered ICE candidates after setting remote description
+            for(const c of (_vc.iceBuf[data.from]||[])){try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch{}}
+            delete _vc.iceBuf[data.from];
+          }
+        }
+      })
+      .on('vc_ice', async data=>{
+        if(data.to!==CU.u||!_vc.inCall||data.chan_id!==_vc.chanId)return;
+        const pc=_vc.peers[data.from];
+        if(!pc||!data.candidate)return;
+        // Buffer candidates if remote description not set yet (avoids lost ICE candidates)
+        if(!pc.remoteDescription){
+          if(!_vc.iceBuf[data.from])_vc.iceBuf[data.from]=[];
+          _vc.iceBuf[data.from].push(data.candidate);
+        }else{
+          try{await pc.addIceCandidate(new RTCIceCandidate(data.candidate));}catch(e){console.warn('ICE add error:',e);}
+        }
+      })
+      .on('vc_leave', data=>{
+        if(data.chan_id!==_vc.chanId)return;
+        removePeerTile(data.username);
+        if(_vc.peers[data.username]){try{_vc.peers[data.username].close();}catch{} delete _vc.peers[data.username];}
+        delete _vc.iceBuf[data.username];
+      });
+    // ── Presence: upsert self, fetch everyone, heartbeat every 15s ──
+    (async()=>{
+      try{
+        // upsert self into presence table
+        const existing=await supa.get('presence?server_code=eq.'+srv.code+'&username=eq.'+CU.u+'&select=username');
+        if(existing&&existing.length) await supa.patch('presence?server_code=eq.'+srv.code+'&username=eq.'+CU.u,{display_name:CU.dn,last_seen:new Date().toISOString()});
+        else await supa.post('presence',{server_code:srv.code,username:CU.u,display_name:CU.dn,last_seen:new Date().toISOString()});
+        // fetch all users active in last 45s
+        const cutoff=new Date(Date.now()-45000).toISOString();
+        const online=await supa.get('presence?server_code=eq.'+srv.code+'&last_seen=gte.'+cutoff+'&select=*');
+        clearOnlinePanel();
+        (online||[]).forEach(p=>{addOnlineUser(p.username,p.display_name,p.username===CU.u);});
+      }catch{}
+    })();
+    // add self immediately so panel isn't empty
+    addOnlineUser(CU.u,CU.dn,true);
+    // announce to peers via realtime
+    setTimeout(()=>{if(_channel)_channel.send('online',{username:CU.u,dn:CU.dn});},400);
+    // heartbeat: every 15s update DB + re-fetch online list + re-announce
+    if(window._onlineHB)clearInterval(window._onlineHB);
+    window._onlineHB=setInterval(async()=>{
+      if(!CS||CS!==srv)return;
+      try{await supa.patch('presence?server_code=eq.'+srv.code+'&username=eq.'+CU.u,{last_seen:new Date().toISOString()});}catch{}
+      if(_channel)_channel.send('online',{username:CU.u,dn:CU.dn});
+      // re-fetch full list to catch anyone who joined without realtime
+      try{
+        const cutoff=new Date(Date.now()-45000).toISOString();
+        const online=await supa.get('presence?server_code=eq.'+srv.code+'&last_seen=gte.'+cutoff+'&select=*');
+        clearOnlinePanel();
+        (online||[]).forEach(p=>{addOnlineUser(p.username,p.display_name,p.username===CU.u);});
+      }catch{}
+    },15000);
+  }catch(e){showToast('connection error: '+e.message)}
+}
+
+function setupAppUI(srv){
+  document.getElementById('homeScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('srvName').textContent=srv.name||'server';
+  const av=document.getElementById('meAv');
+  Array.from(av.childNodes).forEach(n=>{if(n.nodeType===3)n.remove()});
+  av.insertAdjacentText('afterbegin',ini(CU.dn));
+  av.style.background=rc('u'+CU.u);
+  document.getElementById('meTip').textContent=CU.dn+' (@'+CU.u+')';
+  document.getElementById('meName').textContent=CU.dn;
+}
+
+// ═══════════════════════════════════
+//  SIDEBAR
+// ═══════════════════════════════════
+function renderSidebar(){
+  const srv=CS;if(!srv)return;
+  document.getElementById('srvName').textContent=srv.name||'server';
+  const tc=document.getElementById('txtChanList'),vc=document.getElementById('vcChanList');
+  tc.innerHTML='';vc.innerHTML='';
+  (srv.channels.text||[]).forEach(ch=>{
+    if(!canAccessChan(srv,ch))return;
+    const u=srv.chanUnread[ch.id]||0,active=srv.activeChan===ch.id&&srv.activeChanType==='text';
+    const isPriv=!!(ch.allowed);
+    const d=document.createElement('div');d.className='ch'+(active?' active':'');
+    d.innerHTML='<span class="ch-icon">#</span><span class="ch-name">'+esc(ch.name)+'</span>'
+      +(u&&!active?'<span class="ch-badge">'+(u>9?'9+':u)+'</span>':isPriv?'<span class="ch-lock">🔒</span>':'');
+    d.onclick=()=>openTextChan(ch.id,ch.name);tc.appendChild(d);
+  });
+  (srv.channels.voice||[]).forEach(ch=>{
+    const d=document.createElement('div');d.className='ch';
+    d.innerHTML='<span class="ch-icon">&#9670;</span><span class="ch-name">'+esc(ch.name)+'</span>';
+    d.onclick=()=>openVoiceChan(ch.id,ch.name);vc.appendChild(d);
+  });
+}
+
+function canAccessChan(srv,ch){
+  if(!ch.allowed)return true;
+  if(roleRank(srv.myRole||'member')>=3)return true;
+  return ch.allowed.includes(CU.u);
+}
+
+// ═══════════════════════════════════
+//  TEXT CHANNEL
+// ═══════════════════════════════════
+async function openTextChan(id,name){
+  const srv=CS;if(!srv)return;
+  srv.activeChan=id;srv.activeChanType='text';srv.chanUnread[id]=0;
+  showView('text');document.getElementById('txtViewName').textContent=name;
+  const area=document.getElementById('msgsArea');area.innerHTML='';
+  renderSidebar();updateInputBar();document.getElementById('txtInput').focus();
+  // Load last 100 messages from Supabase
+  try{
+    const msgs=await supa.get('messages?server_code=eq.'+srv.code+'&chan_id=eq.'+id+'&order=created_at.asc&limit=100&select=*');
+    (msgs||[]).forEach(m=>renderMsg({...m,isMe:m.username===CU.u}));
+    area.scrollTop=area.scrollHeight;
+  }catch(e){showToast('could not load messages')}
+}
+
+// ═══════════════════════════════════
+//  NOTIFICATION SOUND
+// ═══════════════════════════════════
+const notifAudio=new Audio('https://raw.githubusercontent.com/yiyiyiyiyiyiyiiyy/textures/main/universfield-new-notification-09-352705.mp3');
+notifAudio.volume=0.5;
+function playNotif(){try{notifAudio.currentTime=0;notifAudio.play().catch(()=>{})}catch{}}
+
+// ═══════════════════════════════════
+//  SEND MESSAGE
+// ═══════════════════════════════════
+window.sendText=async()=>{
+  const srv=CS;if(!srv||!srv.activeChan)return;
+  if(roleRank(srv.myRole||'member')<=0)return;
+  const inp=document.getElementById('txtInput'),txt=inp.value.trim();if(!txt)return;
+  inp.value='';
+  const msg={server_code:srv.code,chan_id:srv.activeChan,username:CU.u,name:CU.dn,text:txt,time:ts()};
+  try{
+    const saved=await supa.post('messages',msg);
+    const m=Array.isArray(saved)?saved[0]:saved;
+    renderMsg({...m,isMe:true});
+    // broadcast to other connected peers via realtime
+    if(_channel)_channel.send('msg',{...m,isMe:false});
+    // trigger bot if message contains @bot
+    maybeGroqRespond(srv,srv.activeChan,CU.dn,txt,CU.u,true);
+    // auto-cleanup: delete oldest messages beyond 100 in this channel
+    try{
+      const all=await supa.get('messages?server_code=eq.'+srv.code+'&chan_id=eq.'+srv.activeChan+'&order=created_at.asc&select=id');
+      if(all&&all.length>100){
+        const toDelete=all.slice(0,all.length-100);
+        await Promise.all(toDelete.map(r=>supa.del('messages?id=eq.'+r.id)));
+      }
+    }catch{}
+  }catch(e){showToast('send failed: '+e.message)}
+};
+
+window.sendImage=input=>{
+  const srv=CS;if(!srv||!srv.activeChan)return;
+  const file=input.files[0];if(!file)return;
+  sendImageFile(file);input.value='';
+};
+
+function sendImageFile(file){
+  const srv=CS;if(!srv||!srv.activeChan)return;
+  if(file.size>800*1024){showToast('image too large (max 800kb)');return}
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    const msg={server_code:srv.code,chan_id:srv.activeChan,username:CU.u,name:CU.dn,text:'',img_data:e.target.result,time:ts()};
+    try{
+      const saved=await supa.post('messages',msg);
+      const m=Array.isArray(saved)?saved[0]:saved;
+      renderMsg({...m,imgData:m.img_data,isMe:true});
+      if(_channel)_channel.send('msg',{...m,imgData:m.img_data,isMe:false});
+    }catch(er){showToast('upload failed')}
+  };
+  reader.readAsDataURL(file);
+}
+
+// Drag-and-drop images into chat
+(()=>{
+  const getOverlay=()=>document.getElementById('dropOverlay');
+  document.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='copy';});
+  document.addEventListener('dragenter',e=>{
+    e.preventDefault();
+    if(!CS||!CS.activeChan||CS.activeChanType!=='text')return;
+    if(e.dataTransfer.types&&[...e.dataTransfer.types].includes('Files'))
+      getOverlay().classList.add('active');
+  });
+  document.addEventListener('dragleave',e=>{
+    if(e.relatedTarget===null)getOverlay().classList.remove('active');
+  });
+  document.addEventListener('drop',e=>{
+    e.stopPropagation();e.preventDefault();
+    getOverlay().classList.remove('active');
+    if(!CS||!CS.activeChan||CS.activeChanType!=='text')return;
+    const files=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
+    if(!files.length){showToast('drop an image file');return;}
+    files.forEach(f=>sendImageFile(f));
+  });
+})();
+
+window.deleteMsg=async(id,chanId)=>{
+  const srv=CS;if(!srv||!id)return;
+  await supa.del('messages?id=eq.'+id);
+  const el=document.querySelector('[data-msgid="'+CSS.escape(id)+'"]');if(el)el.remove();
+  if(_channel)_channel.send('delete_msg',{id});
+};
+
+// ═══════════════════════════════════
+//  RENDER MESSAGE
+// ═══════════════════════════════════
+function renderMsg(msg){
+  const area=document.getElementById('msgsArea');if(!area)return;
+  const isMe=msg.isMe||(msg.username===CU.u);
+  const isBot=msg.isBot||msg.username?.startsWith('__bot__');
+  const uid=msg.username||msg.name;
+  const srv=CS;
+  const d=document.createElement('div');
+  d.className='tmsg';
+  const msgId=String(msg.id||msg.msgId||'');
+  if(msgId)d.dataset.msgid=msgId;
+  const myDn=CU?.dn||'';
+  const imgData=msg.imgData||msg.img_data;
+  if(!isMe&&myDn&&(msg.text||'').toLowerCase().includes('#'+myDn.toLowerCase()))d.classList.add('mentioned');
+  // mod menu
+  let menu='';
+  if(!isBot&&!isMe&&srv&&roleRank(srv.myRole||'member')>=2&&uid!==CU.u){
+    menu=`<div class="ctx"><div class="ctx-i" onclick="doMod('set-role','${esc(uid)}','op')">make op</div><div class="ctx-sep"></div><div class="ctx-i red" onclick="doMod('perm-ban','${esc(uid)}')">ban</div></div>`;
+  }
+  const canDelete=msgId&&(isMe||roleRank(srv?.myRole||'member')>=3);
+  const delBtn=canDelete?`<button class="msg-del" onclick="deleteMsg('${msgId}','${esc(srv?.activeChan||'')}')">✕</button>`:'';
+  const avColor=isBot?'#1a4a2a':rc('u'+uid);
+  const nameCls=isBot?'tn-bot':isMe?'tn-me':'tn-them';
+  // render text
+  const renderText=t=>{
+    const urlRx=/(https?:\/\/[^\s<>"]+)/g;
+    const mentionRx=/(#[^\s#.,!?;:'"()[\]{}]+)/g;
+    return esc(t).replace(/&amp;|&lt;|&gt;/g,m=>({'&amp;':'&','&lt;':'<','&gt;':'>'}[m]))
+      .split(urlRx).map(part=>{
+        if(urlRx.test(part)){urlRx.lastIndex=0;return`<a href="${part}" target="_blank" rel="noopener noreferrer">${esc(part)}</a>`}
+        return part.split(mentionRx).map(seg=>{
+          if(mentionRx.test(seg)){mentionRx.lastIndex=0;
+            const isMeM=myDn&&seg.toLowerCase()==='#'+myDn.toLowerCase();
+            return`<span class="mention${isMeM?' me':''}">${esc(seg)}</span>`;
+          }return esc(seg);
+        }).join('');
+      }).join('');
+  };
+  const isImgUrl=t=>{try{const u=new URL(t.trim());return/\.(jpe?g|png|gif|webp|svg)(\?.*)?$/i.test(u.pathname)}catch{return false}};
+  let bodyExtra='';
+  if(imgData){
+    bodyExtra=`<img class="tmsg-img" src="${imgData}" alt="image" onclick="openLightbox(this.src)"/>`;
+  }else if(msg.text&&isImgUrl(msg.text.trim())){
+    bodyExtra=`<img class="tmsg-img" src="${esc(msg.text.trim())}" alt="image" onclick="openLightbox(this.src)" onerror="this.style.display='none'"/>`;
+  }else if(msg.text&&/(https?:\/\/[^\s]+)/.test(msg.text)){
+    const url=msg.text.match(/(https?:\/\/[^\s]+)/)[0];
+    bodyExtra=`<div class="tmsg-link-embed"><a class="tle-url" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(url)}</a></div>`;
+  }
+  const displayText=imgData?'':renderText(msg.text||'');
+  d.innerHTML=`<div class="tmsg-av" style="background:${avColor}">${isBot?'&#9632;':ini(msg.name)}${menu}</div>`
+    +`<div class="tmsg-body"><div class="tmsg-meta"><span class="tmsg-name ${nameCls}">${esc(msg.name)}</span>`
+    +`<span class="tmsg-time">${msg.time||ts()}</span></div>`
+    +`<div class="tmsg-text${isBot?' bot-txt':''}">${displayText}</div>${bodyExtra}</div>${delBtn}`;
+  area.appendChild(d);
+  area.scrollTop=area.scrollHeight;
+}
+window.openLightbox=src=>{document.getElementById('imgLightboxImg').src=src;document.getElementById('imgLightbox').classList.add('show')};
+
+// ═══════════════════════════════════
+//  AI BOT
+// ═══════════════════════════════════
+
+
+
+
+// ═══════════════════════════════════
+//  GROQ AI BOT  (@bot trigger)
+// ═══════════════════════════════════
+const GROQ_LS_KEY='cc_groq_cfg';
+// Returns effective config: personal override > server cloud cfg > shared hardcoded key
+function getGroqCfg(){
+  const local=LS.get(GROQ_LS_KEY);
+  if(local&&local.apiKey)return local;
+  // Try cloud-stored server bot cfg (loaded into CS.botCfg when openServer runs)
+  if(CS?.botCfg?.apiKey)return CS.botCfg;
+  // Fall back to shared key embedded in this file
+  return{apiKey:SHARED_GROQ_KEY,model:SHARED_GROQ_MODEL,systemPrompt:SHARED_GROQ_SYSP};
+}
+function saveGroqCfgData(cfg){LS.set(GROQ_LS_KEY,cfg)}
+
+window.showGroqModal=async()=>{
+  // Admins/owners see full config + cloud save. Members just see status.
+  const isAdmin=CS&&roleRank(CS.myRole||'member')>=3;
+  const sharedActive=!!(SHARED_GROQ_KEY||(CS?.botCfg?.apiKey));
+  document.getElementById('groqSharedStatus').style.display=sharedActive?'':'none';
+  document.getElementById('groqSharedStatus').textContent=sharedActive?'✓ shared bot key is active — @bot works for everyone':'';
+  document.getElementById('groqAdminSection').style.display=isAdmin?'':'none';
+  const cfg=CS?.botCfg||getGroqCfg();
+  document.getElementById('groqKeyIn').value=(isAdmin&&cfg.apiKey!==SHARED_GROQ_KEY)?cfg.apiKey||'':'';
+  const sel=document.getElementById('groqModelIn');
+  sel.value=cfg.model||SHARED_GROQ_MODEL;if(!sel.value)sel.value=SHARED_GROQ_MODEL;
+  document.getElementById('groqSysIn').value=cfg.systemPrompt||SHARED_GROQ_SYSP;
+  document.getElementById('groqModal').classList.add('show');
+};
+
+window.saveGroqSettings=async()=>{
+  const isAdmin=CS&&roleRank(CS.myRole||'member')>=3;
+  const key=document.getElementById('groqKeyIn').value.trim();
+  const model=document.getElementById('groqModelIn').value||SHARED_GROQ_MODEL;
+  const sys=document.getElementById('groqSysIn').value.trim()||SHARED_GROQ_SYSP;
+  const cfg={apiKey:key||SHARED_GROQ_KEY,model,systemPrompt:sys};
+  if(isAdmin&&CS){
+    // Save to Supabase so everyone in the server gets it
+    try{
+      const existing=await supa.get('bot_configs?server_code=eq.'+CS.code+'&select=server_code');
+      if(existing&&existing.length) await supa.patch('bot_configs?server_code=eq.'+CS.code,{api_key:cfg.apiKey,model:cfg.model,system_prompt:cfg.systemPrompt});
+      else await supa.post('bot_configs',{server_code:CS.code,api_key:cfg.apiKey,model:cfg.model,system_prompt:cfg.systemPrompt});
+      CS.botCfg=cfg;
+      showToast('bot settings saved for everyone on this server');
+    }catch{
+      // Table may not exist yet — fall back to localStorage
+      saveGroqCfgData({apiKey:key,model,systemPrompt:sys});
+      showToast(key?'bot ready (local) — type @bot to use it':'key cleared');
+    }
+  }else{
+    saveGroqCfgData({apiKey:key,model,systemPrompt:sys});
+    showToast(key?'personal bot override saved':'using shared bot key');
+  }
+  closeModals();
+};
+
+async function maybeGroqRespond(srv,chanId,senderName,text,senderUser,fromSelf){
+  if(!text||senderUser?.startsWith('__bot__'))return;
+  if(!fromSelf)return; // only the SENDER calls the bot — prevents everyone calling it simultaneously
+  if(!text.toLowerCase().includes('@bot'))return;
+  const cfg=getGroqCfg();
+  if(!cfg.apiKey){showToast('no bot key — ask server admin to configure the ai bot');return;}
+  const cleanText=text.replace(/@bot\b/gi,'').trim();
+  // show typing indicator
+  const area=document.getElementById('msgsArea');
+  const typingEl=document.createElement('div');typingEl.className='bot-typing';typingEl.id='groq-typing';
+  typingEl.innerHTML='<div class="bdots"><div class="bd"></div><div class="bd"></div><div class="bd"></div></div><div class="bot-tn">bot is thinking...</div>';
+  if(area){area.appendChild(typingEl);area.scrollTop=area.scrollHeight;}
+  try{
+    const resp=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      mode:'cors',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.apiKey},
+      body:JSON.stringify({
+        model:cfg.model||'llama-3.3-70b-versatile',
+        messages:[
+          {role:'system',content:cfg.systemPrompt||'You are a helpful assistant.'},
+          {role:'user',content:senderName+': '+cleanText}
+        ]
+      })
+    });
+    const el=document.getElementById('groq-typing');if(el)el.remove();
+    if(!resp.ok){
+      const e=await resp.json().catch(()=>({}));
+      showToast('groq '+resp.status+': '+(e.error?.message||JSON.stringify(e)));
+      return;
+    }
+    const data=await resp.json();
+    const reply=data.choices?.[0]?.message?.content||'...';
+    const botMsg={server_code:srv.code,chan_id:chanId,username:'__bot__',name:'Bot',text:reply,time:ts()};
+    const saved=await supa.post('messages',botMsg);
+    const m=Array.isArray(saved)?saved[0]:saved;
+    renderMsg({...m,isBot:true,isMe:false});
+    if(_channel)_channel.send('msg',{...m,isBot:true,isMe:false});
+  }catch(e){
+    const el=document.getElementById('groq-typing');if(el)el.remove();
+    showToast('groq error: '+e.message);
+  }
+}
+
+// ═══════════════════════════════════
+//  VOICE CHAT  (Pure WebRTC — free, unlimited minutes)
+//  Signaling: Supabase Realtime  |  NAT: STUN + free TURN
+// ═══════════════════════════════════
+const STUN_CFG={iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},
+  {urls:'stun:stun1.l.google.com:19302'},
+  {urls:'turn:openrelay.metered.ca:80',  username:'openrelayproject',credential:'openrelayproject'},
+  {urls:'turn:openrelay.metered.ca:443', username:'openrelayproject',credential:'openrelayproject'},
+  {urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}
+]};
+
+let _vc={
+  chanId:null,chanName:null,
+  peers:{},    // username -> RTCPeerConnection
+  iceBuf:{},   // username -> buffered ICE candidates
+  audioNodes:{},// username -> {src,gain} Web Audio nodes
+  localStream:null,
+  audioCtx:null, // unlocked on user gesture (join button click)
+  micOn:true,
+  camOn:false,
+  inCall:false,
+  _hb:null,
+  _speakInt:null
+};
+
+async function openVoiceChan(id,name){
+  const srv=CS;if(!srv)return;
+  if(_vc.chanId===id){showView('voice');return;}
+  if(_vc.inCall){
+    if(_channel)_channel.send('vc_leave',{username:CU.u,chan_id:_vc.chanId});
+    await leaveVoiceClean();
+  }
+  _vc.chanId=id;_vc.chanName=name;
+  showView('voice');
+  document.getElementById('vcViewName').textContent=name;
+  document.getElementById('vcLobbyName').textContent=name;
+  document.getElementById('vcLobby').style.display='flex';
+  document.getElementById('vgrid').style.display='none';
+  document.getElementById('vcbar').style.display='none';
+  document.getElementById('vgrid').innerHTML='';
+  document.getElementById('vcLobbyMems').innerHTML='';
+  setVCStatus('click join to enter','amber');
+  updateVCCount();
+  try{
+    const cutoff=new Date(Date.now()-30000).toISOString();
+    const members=await supa.get('vc_presence?server_code=eq.'+srv.code+'&chan_id=eq.'+id+'&last_seen=gte.'+cutoff+'&select=*');
+    (members||[]).forEach(m=>renderVCLobbyMember(m.username,m.display_name||m.username));
+  }catch{}
+}
+
+window.joinVoiceNow=async()=>{
+  const srv=CS;if(!srv||!_vc.chanId)return;
+  setVCStatus('getting microphone...','amber');
+
+  // ── Unlock AudioContext on this user gesture ──
+  // This is critical — audio from remote peers won't play unless the AudioContext
+  // is created/resumed during a user gesture (button click). This bypasses autoplay policy.
+  try{
+    _vc.audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_vc.audioCtx.state==='suspended')await _vc.audioCtx.resume();
+  }catch(e){console.warn('AudioContext failed:',e);}
+
+  // ── Get media (audio required, video optional) ──
+  try{
+    try{
+      _vc.localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:{width:640,height:480,facingMode:'user'}});
+      _vc.camOn=true;
+    }catch{
+      _vc.localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+      _vc.camOn=false;
+    }
+  }catch(e){showToast('mic error: '+e.message);setVCStatus('mic denied','red');return;}
+
+  _vc.inCall=true;_vc.micOn=true;
+  document.getElementById('vcLobby').style.display='none';
+  document.getElementById('vgrid').style.display='grid';
+  document.getElementById('vcbar').style.display='flex';
+  addMyTile();updateCtrl();setVCStatus('in voice channel','green');
+  updateVCCount();
+
+  // ── Speaking detection for local mic ──
+  startSpeakDetect('tile-me',_vc.localStream,_vc.audioCtx);
+
+  const chanId=_vc.chanId;
+
+  // ── Write to vc_presence ──
+  try{
+    const ex=await supa.get('vc_presence?server_code=eq.'+srv.code+'&chan_id=eq.'+chanId+'&username=eq.'+CU.u+'&select=username');
+    if(ex&&ex.length) await supa.patch('vc_presence?server_code=eq.'+srv.code+'&chan_id=eq.'+chanId+'&username=eq.'+CU.u,{display_name:CU.dn,last_seen:new Date().toISOString()});
+    else await supa.post('vc_presence',{server_code:srv.code,chan_id:chanId,username:CU.u,display_name:CU.dn,last_seen:new Date().toISOString()});
+  }catch(e){console.warn('vc_presence write:',e.message);}
+
+  // ── Broadcast join — existing members send us offers ──
+  if(_channel)_channel.send('vc_join',{username:CU.u,dn:CU.dn,chan_id:chanId});
+
+  // ── Re-broadcast after 1.5s (race condition fix) ──
+  setTimeout(()=>{if(_vc.inCall&&_channel)_channel.send('vc_join',{username:CU.u,dn:CU.dn,chan_id:chanId});},1500);
+
+  // ── 4s fallback: directly connect to anyone we missed ──
+  setTimeout(async()=>{
+    if(!_vc.inCall)return;
+    try{
+      const cutoff=new Date(Date.now()-35000).toISOString();
+      const others=await supa.get('vc_presence?server_code=eq.'+srv.code+'&chan_id=eq.'+chanId+'&username=neq.'+CU.u+'&last_seen=gte.'+cutoff+'&select=*');
+      if(!others||!others.length)return;
+      for(const peer of others){
+        if(_vc.peers[peer.username])continue;
+        if(CU.u<peer.username){
+          const pc=createPeerConn(peer.username,peer.display_name||peer.username);
+          const offer=await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          if(_channel)_channel.send('vc_signal',{from:CU.u,dn:CU.dn,to:peer.username,type:'offer',sdp:pc.localDescription,chan_id:chanId});
+        }else{
+          if(_channel)_channel.send('vc_join',{username:CU.u,dn:CU.dn,chan_id:chanId});
+        }
+      }
+    }catch(e){console.warn('vc fallback:',e.message);}
+  },4000);
+
+  // ── Presence heartbeat every 20s ──
+  if(_vc._hb)clearInterval(_vc._hb);
+  _vc._hb=setInterval(async()=>{
+    if(!_vc.inCall)return;
+    try{await supa.patch('vc_presence?server_code=eq.'+srv.code+'&chan_id=eq.'+chanId+'&username=eq.'+CU.u,{last_seen:new Date().toISOString()});}catch{}
+  },20000);
+};
+
+function createPeerConn(remoteUser,dn){
+  if(_vc.peers[remoteUser]){try{_vc.peers[remoteUser].close();}catch{} delete _vc.peers[remoteUser]; removePeerTile(remoteUser);}
+  const pc=new RTCPeerConnection(STUN_CFG);
+  _vc.peers[remoteUser]=pc;
+  if(_vc.localStream)_vc.localStream.getTracks().forEach(t=>pc.addTrack(t,_vc.localStream));
+
+  pc.ontrack=e=>{
+    const stream=e.streams&&e.streams[0]?e.streams[0]:new MediaStream([e.track]);
+    addPeerTile(remoteUser,dn,stream);
+  };
+  pc.onicecandidate=e=>{
+    if(e.candidate&&_channel)
+      _channel.send('vc_ice',{from:CU.u,to:remoteUser,candidate:e.candidate,chan_id:_vc.chanId});
+  };
+  pc.onconnectionstatechange=()=>{
+    if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){
+      removePeerTile(remoteUser);
+      if(_vc.audioNodes[remoteUser]){try{_vc.audioNodes[remoteUser].src.disconnect();}catch{} delete _vc.audioNodes[remoteUser];}
+      delete _vc.peers[remoteUser];
+    }
+    setVCStatus(pc.connectionState==='connected'?'in voice channel':'connecting...', pc.connectionState==='connected'?'green':'amber');
+  };
+  return pc;
+}
+
+function addMyTile(){
+  const g=document.getElementById('vgrid');
+  if(document.getElementById('tile-me'))return;
+  const t=document.createElement('div');t.className='vtile';t.id='tile-me';t.style.position='relative';
+  t.innerHTML=`<div class="tile-av" id="tile-me-av"><div class="av-c" style="background:${rc('u'+CU.u)}">${ini(CU.dn)}</div></div>`
+    +`<div class="tlabel">${esc(CU.dn)} (you)</div>`;
+  if(_vc.camOn&&_vc.localStream&&_vc.localStream.getVideoTracks().length){
+    const vid=document.createElement('video');
+    vid.autoplay=true;vid.muted=true;vid.playsInline=true;
+    vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+    vid.srcObject=_vc.localStream;
+    t.insertBefore(vid,t.firstChild);
+    document.getElementById('tile-me-av')&&(document.getElementById('tile-me-av').style.display='none');
+  }
+  t.title='click to fullscreen';
+  t.insertAdjacentHTML('beforeend','<div id="fsHint">⤢ fullscreen</div>');
+  t.addEventListener('click',()=>toggleTileFullscreen(t));
+  g.appendChild(t);layout();
+}
+
+function addPeerTile(username,dn,stream){
+  const g=document.getElementById('vgrid');
+  const tileId='tile-'+username;
+
+  // ── Route audio through Web Audio API (bypasses autoplay restriction) ──
+  if(_vc.audioCtx&&stream.getAudioTracks().length){
+    // Disconnect old node if exists
+    if(_vc.audioNodes[username]){try{_vc.audioNodes[username].src.disconnect();}catch{}}
+    try{
+      const src=_vc.audioCtx.createMediaStreamSource(stream);
+      src.connect(_vc.audioCtx.destination);
+      _vc.audioNodes[username]={src};
+      // Speaking detection for remote user
+      startSpeakDetect(tileId,stream,_vc.audioCtx);
+    }catch(e){console.warn('audio route error:',e);}
+  }
+
+  const hasVideo=stream.getVideoTracks&&stream.getVideoTracks().length>0;
+
+  // ── Update existing tile ──
+  if(document.getElementById(tileId)){
+    const tile=document.getElementById(tileId);
+    let vid=tile.querySelector('video');
+    if(hasVideo){
+      if(!vid){
+        vid=document.createElement('video');
+        vid.autoplay=true;vid.playsInline=true;
+        vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+        tile.insertBefore(vid,tile.firstChild);
+        const av=tile.querySelector('.tile-av');if(av)av.style.display='none';
+      }
+      vid.srcObject=stream;
+    }
+    return;
+  }
+
+  // ── Create new tile ──
+  const tile=document.createElement('div');tile.className='vtile';tile.id=tileId;tile.style.position='relative';
+  tile.innerHTML=`<div class="tile-av" style="${hasVideo?'display:none':''}"><div class="av-c" style="background:${rc('u'+username)}">${ini(dn)}</div></div>`
+    +`<div class="tlabel">${esc(dn)}</div>`;
+  if(hasVideo){
+    const vid=document.createElement('video');
+    vid.autoplay=true;vid.playsInline=true;
+    vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+    vid.srcObject=stream;
+    tile.insertBefore(vid,tile.firstChild);
+  }
+  tile.title='click to fullscreen';
+  tile.insertAdjacentHTML('beforeend','<div id="fsh-'+username+'" style="position:absolute;top:7px;right:9px;font-size:9px;color:rgba(200,200,208,0.4);pointer-events:none;letter-spacing:0.05em">⤢ fullscreen</div>');
+  tile.addEventListener('click',()=>toggleTileFullscreen(tile));
+  g.appendChild(tile);layout();updateVCCount();
+}
+
+function removePeerTile(username){
+  const t=document.getElementById('tile-'+username);if(t)t.remove();
+  if(_vc.audioNodes[username]){try{_vc.audioNodes[username].src.disconnect();}catch{} delete _vc.audioNodes[username];}
+  layout();updateVCCount();
+}
+
+function renderVCLobbyMember(username,dn){
+  const el=document.getElementById('vcLobbyMems');
+  if(document.getElementById('vcm-'+username))return;
+  const d=document.createElement('div');d.className='vc-lm-av has-tip';d.id='vcm-'+username;
+  d.style.background=rc('u'+username);d.innerHTML=ini(dn)+'<div class="tip">'+esc(dn)+'</div>';
+  el.appendChild(d);
+}
+
+// Speaking detection — Discord-style green border when talking
+function startSpeakDetect(tileId,stream,ctx){
+  if(!ctx||!stream||!stream.getAudioTracks().length)return;
+  try{
+    const src=ctx.createMediaStreamSource(stream);
+    const analyser=ctx.createAnalyser();
+    analyser.fftSize=512;
+    analyser.smoothingTimeConstant=0.15; // fast response, no lag
+    analyser.minDecibels=-85;
+    analyser.maxDecibels=-10;
+    src.connect(analyser);
+    const buf=new Uint8Array(analyser.frequencyBinCount);
+    let speaking=false;
+    let silenceFrames=0;
+    const SPEAK_THRESH=8;   // start speaking
+    const SILENCE_FRAMES=12; // ~200ms hold-off before clearing (prevents flickering)
+    const tick=()=>{
+      if(!_vc.inCall){src.disconnect();return;}
+      const tile=document.getElementById(tileId);
+      if(!tile){src.disconnect();return;}
+      analyser.getByteFrequencyData(buf);
+      // Focus on speech frequencies (300hz–3400hz)
+      const start=Math.floor(300/(ctx.sampleRate/analyser.fftSize));
+      const end=Math.floor(3400/(ctx.sampleRate/analyser.fftSize));
+      let sum=0;for(let i=start;i<end;i++)sum+=buf[i];
+      const vol=sum/(end-start);
+      if(vol>SPEAK_THRESH){
+        silenceFrames=0;
+        if(!speaking){speaking=true;tile.classList.add('speaking');}
+      }else{
+        silenceFrames++;
+        if(speaking&&silenceFrames>SILENCE_FRAMES){speaking=false;tile.classList.remove('speaking');}
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }catch(e){console.warn('speak detect:',e);}
+}
+
+function toggleTileFullscreen(tile){
+  const isFs=document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement;
+  if(isFs){
+    (document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||function(){}).call(document);
+  }else{
+    const req=tile.requestFullscreen||tile.webkitRequestFullscreen||tile.mozRequestFullScreen;
+    if(req)req.call(tile);
+  }
+}
+
+window.leaveVoice=async()=>{
+  if(_vc.inCall&&_channel)_channel.send('vc_leave',{username:CU.u,chan_id:_vc.chanId});
+  await leaveVoiceClean();
+  showView('welcome');
+};
+
+async function leaveVoiceClean(){
+  if(_vc._hb){clearInterval(_vc._hb);_vc._hb=null;}
+  if(CS&&_vc.chanId){
+    try{await supa.del('vc_presence?server_code=eq.'+CS.code+'&chan_id=eq.'+_vc.chanId+'&username=eq.'+CU.u);}catch{}
+  }
+  // Disconnect all Web Audio nodes
+  Object.values(_vc.audioNodes).forEach(n=>{try{n.src.disconnect();}catch{}});
+  _vc.audioNodes={};
+  if(_vc.audioCtx){try{_vc.audioCtx.close();}catch{} _vc.audioCtx=null;}
+  if(_vc.localStream){_vc.localStream.getTracks().forEach(t=>t.stop());_vc.localStream=null;}
+  Object.values(_vc.peers).forEach(pc=>{try{pc.close();}catch{}});
+  _vc.peers={};_vc.iceBuf={};_vc.inCall=false;
+  _vc.chanId=null;_vc.chanName=null;_vc.camOn=false;
+  document.getElementById('vgrid').innerHTML='';
+  document.getElementById('vgrid').style.display='none';
+  document.getElementById('vcbar').style.display='none';
+  document.getElementById('vcLobby').style.display='flex';
+  document.getElementById('vcLobbyMems').innerHTML='';
+}
+
+window.toggleMic=()=>{
+  _vc.micOn=!_vc.micOn;
+  if(_vc.localStream)_vc.localStream.getAudioTracks().forEach(t=>t.enabled=_vc.micOn);
+  updateCtrl();
+};
+
+window.toggleCam=()=>{
+  if(!_vc.inCall||!_vc.localStream)return;
+  const vt=_vc.localStream.getVideoTracks();
+  if(!vt.length){showToast('no camera available');return;}
+  _vc.camOn=!_vc.camOn;
+  vt.forEach(t=>t.enabled=_vc.camOn);
+  const myTile=document.getElementById('tile-me');
+  if(myTile){
+    const vid=myTile.querySelector('video');
+    const av=myTile.querySelector('.tile-av');
+    if(vid)vid.style.display=_vc.camOn?'':'none';
+    if(av)av.style.display=_vc.camOn?'none':'';
+  }
+  showToast(_vc.camOn?'camera on':'camera off');
+  updateCtrl();
+};
+
+function updateCtrl(){
+  const mb=document.getElementById('micBtn'),cb=document.getElementById('camBtn');
+  if(mb){mb.innerHTML=_vc.micOn?'&#9679;':'&#9711;';mb.className='cbtn'+(_vc.micOn?'':' off');}
+  if(cb){cb.innerHTML='&#9646;&#9646;';cb.className='cbtn'+(_vc.camOn?'':' off');}
+}
+
+function updateVCCount(){
+  const el=document.getElementById('vcCount');if(!el)return;
+  const n=document.getElementById('vgrid')?.children.length||0;
+  el.textContent=n?n+' in channel':'';
+}
+
+function setVCStatus(msg,color){
+  const t=document.getElementById('vcStatusTxt'),d=document.getElementById('vcStatusDot');
+  if(t)t.textContent=msg;if(d)d.className='status-dot '+color;
+}
+
+function layout(){
+  const g=document.getElementById('vgrid');if(!g)return;const n=g.children.length;
+  g.style.maxWidth='';g.style.margin='0';
+  if(n<=1){g.style.gridTemplateColumns='1fr';g.style.gridTemplateRows='1fr';}
+  else if(n===2){g.style.gridTemplateColumns='1fr 1fr';g.style.gridTemplateRows='1fr';}
+  else if(n<=4){g.style.gridTemplateColumns='1fr 1fr';g.style.gridTemplateRows='1fr 1fr';}
+  else{g.style.gridTemplateColumns='repeat(3,1fr)';g.style.gridTemplateRows='';}
+}
+
+// ═══════════════════════════════════
+//  MODERATION
+// ═══════════════════════════════════
+function renderMyRole(){
+  const srv=CS;if(!srv)return;const role=srv.myRole||'member';
+  const badge=document.getElementById('myRole');badge.textContent=roleLbl(role);badge.className='role-badge '+roleCls(role);
+  document.getElementById('manageBtn').style.display=roleRank(role)>=2?'':'none';
+  document.getElementById('addTxtBtn').style.display=roleRank(role)>=3?'':'none';
+  document.getElementById('addVcBtn').style.display=roleRank(role)>=3?'':'none';
+}
+window.showModPanel=async()=>{
+  const srv=CS;if(!srv)return;
+  document.getElementById('modSub').textContent='your role: '+(srv.myRole||'member');
+  const list=document.getElementById('modList');list.innerHTML='<div style="font-size:11px;color:#3a3a4a">loading...</div>';
+  document.getElementById('modModal').classList.add('show');
+  const [roles,bans]=await Promise.all([
+    supa.get('roles?server_code=eq.'+srv.code+'&select=*'),
+    supa.get('bans?server_code=eq.'+srv.code+'&select=*')
+  ]);
+  const banMap={};(bans||[]).forEach(b=>{banMap[b.username]=b});
+  list.innerHTML='';
+  (roles||[]).forEach(r=>{
+    const uname=r.username,role=r.role,dn=uname;
+    const ban=banMap[uname];
+    const banned=ban&&(ban.ban_type==='perm'||(ban.ban_type==='temp'&&new Date(ban.until)>new Date()));
+    const isMe=uname===CU.u,myRole=srv.myRole||'member',canMod=!isMe&&roleRank(myRole)>roleRank(role);
+    const row=document.createElement('div');row.className='member-row';
+    let acts='';
+    if(canMod){
+      if(!banned){
+        if(roleRank(myRole)>=3&&role!=='admin')acts+='<button class="sm-btn" onclick="doMod(&quot;set-role&quot;,&quot;'+uname+'&quot;,&quot;admin&quot;)">admin</button>';
+        if(role!=='op')acts+='<button class="sm-btn" onclick="doMod(&quot;set-role&quot;,&quot;'+uname+'&quot;,&quot;op&quot;)">op</button>';
+        if(role!=='member')acts+='<button class="sm-btn" onclick="doMod(&quot;set-role&quot;,&quot;'+uname+'&quot;,&quot;member&quot;)">demote</button>';
+        acts+='<button class="sm-btn red" onclick="doMod(&quot;perm-ban&quot;,&quot;'+ uname +'&quot;)">perm ban</button>';
+        acts+='<button class="sm-btn red" onclick="doMod(&quot;temp-ban&quot;,&quot;'+ uname +'&quot;)">temp ban</button>';
+      }else acts+='<button class="sm-btn" onclick="doMod(&quot;unban&quot;,&quot;'+ uname +'&quot;)">unban</button>';
+    }
+    row.innerHTML='<div class="mav" style="background:'+rc('u'+uname)+'">'+ini(dn)+'</div>'
+      +'<div class="minfo"><div class="mname">'+esc(dn)+(isMe?' (you)':'')+'</div>'
+      +'<div class="mrole '+roleCls(role)+'">'+roleLbl(role)+(banned?' · banned':'')+'</div></div>'
+      +'<div class="macts">'+acts+'</div>';
+    list.appendChild(row);
+  });
+};
+window.doMod=async(action,targetU,extra)=>{
+  const srv=CS;if(!srv)return;
+  if(action==='set-role'){
+    await supa.patch('roles?server_code=eq.'+srv.code+'&username=eq.'+targetU,{role:extra});
+    showToast(targetU+' is now '+extra);
+    if(_channel)_channel.send('update_role',{username:targetU,role:extra});
+  }else if(action==='perm-ban'){
+    if(!confirm('Permanently ban '+targetU+'?'))return;
+    const existing=await supa.get('bans?server_code=eq.'+srv.code+'&username=eq.'+targetU+'&select=*');
+    if(existing&&existing.length)await supa.patch('bans?server_code=eq.'+srv.code+'&username=eq.'+targetU,{ban_type:'perm'});
+    else await supa.post('bans',{server_code:srv.code,username:targetU,ban_type:'perm'});
+    showToast(targetU+' banned');
+    if(_channel)_channel.send('ban',{username:targetU});
+  }else if(action==='temp-ban'){
+    pendingTB=targetU;document.getElementById('tbDur').value='';document.getElementById('tbErr').textContent='';document.getElementById('tempBanModal').classList.add('show');return;
+  }else if(action==='unban'){
+    await supa.del('bans?server_code=eq.'+srv.code+'&username=eq.'+targetU);
+    showToast(targetU+' unbanned');
+  }else if(action==='restrict'){
+    await supa.patch('roles?server_code=eq.'+srv.code+'&username=eq.'+targetU,{role:'restricted'});
+    showToast(targetU+' restricted');
+    if(_channel)_channel.send('update_role',{username:targetU,role:'restricted'});
+  }
+  closeModals();
+};
+window.confirmTempBan=async()=>{
+  const mins=parseInt(document.getElementById('tbDur').value)||0;
+  if(mins<1){document.getElementById('tbErr').textContent='> enter minutes > 0';return}
+  if(!pendingTB||!CS)return;
+  const until=new Date(Date.now()+mins*60000).toISOString();
+  const existing=await supa.get('bans?server_code=eq.'+CS.code+'&username=eq.'+pendingTB+'&select=*');
+  if(existing&&existing.length)await supa.patch('bans?server_code=eq.'+CS.code+'&username=eq.'+pendingTB,{ban_type:'temp',until});
+  else await supa.post('bans',{server_code:CS.code,username:pendingTB,ban_type:'temp',until});
+  if(_channel)_channel.send('ban',{username:pendingTB});
+  showToast(pendingTB+' temp banned for '+mins+' min');closeModals();pendingTB=null;
+};
+function updateInputBar(){
+  const srv=CS;if(!srv)return;
+  const restricted=roleRank(srv.myRole||'member')<=0;
+  document.getElementById('restrictBar').style.display=restricted?'block':'none';
+  document.getElementById('inputWrap').style.display=restricted?'none':'flex';
+}
+
+// ═══════════════════════════════════
+//  CHANNELS
+// ═══════════════════════════════════
+window.openAddChan=type=>{
+  const srv=CS;if(!srv)return;
+  if(roleRank(srv.myRole||'member')<3){showToast('only owner or admin can add channels');return}
+  newChanType=type;newChanPrivate=false;selChanType(type);
+  document.getElementById('chanNameIn').value='';document.getElementById('privUsersIn').value='';
+  document.getElementById('privTrack').className='priv-track';document.getElementById('privLbl').textContent='public channel';
+  document.getElementById('privUsersWrap').style.display='none';
+  document.getElementById('addChanModal').classList.add('show');
+  setTimeout(()=>document.getElementById('chanNameIn').focus(),50);
+};
+window.togglePrivChan=()=>{
+  newChanPrivate=!newChanPrivate;
+  document.getElementById('privTrack').className='priv-track'+(newChanPrivate?' on':'');
+  document.getElementById('privLbl').textContent=newChanPrivate?'private channel':'public channel';
+  document.getElementById('privUsersWrap').style.display=newChanPrivate?'block':'none';
+};
+window.selChanType=t=>{newChanType=t;document.getElementById('mt-text').className='mt-btn'+(t==='text'?' sel':'');document.getElementById('mt-voice').className='mt-btn'+(t==='voice'?' sel':'')};
+window.confirmAddChan=async()=>{
+  const srv=CS;if(!srv)return;const name=document.getElementById('chanNameIn').value.trim();if(!name)return;
+  const id=(newChanType==='text'?'tc-':'vc-')+Date.now();
+  let allowed=null;
+  if(newChanPrivate&&newChanType==='text'){const raw=document.getElementById('privUsersIn').value;allowed=[CU.u,...raw.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean)]}
+  const channels=JSON.parse(JSON.stringify(srv.channels));
+  if(newChanType==='text'){const ch={id,name};if(allowed)ch.allowed=allowed;channels.text.push(ch);}
+  else channels.voice.push({id,name});
+  await supa.patch('servers?code=eq.'+srv.code,{channels:JSON.stringify(channels)});
+  srv.channels=channels;if(_channel)_channel.send('update_channels',{channels});
+  closeModals();renderSidebar();
+};
+window.deleteChannel=async(chanId,type)=>{
+  const srv=CS;if(!srv)return;
+  if(roleRank(srv.myRole||'member')<3){showToast('only admins can delete channels');return}
+  const channels=JSON.parse(JSON.stringify(srv.channels));
+  if(type==='text')channels.text=channels.text.filter(c=>c.id!==chanId);
+  else channels.voice=channels.voice.filter(c=>c.id!==chanId);
+  await supa.patch('servers?code=eq.'+srv.code,{channels:JSON.stringify(channels)});
+  srv.channels=channels;if(_channel)_channel.send('update_channels',{channels});
+  if(srv.activeChan===chanId){srv.activeChan=null;srv.activeChanType=null;showView('welcome')}
+  renderSidebar();showToast('channel deleted');
+};
+
+// ═══════════════════════════════════
+//  ONLINE USERS PANEL
+// ═══════════════════════════════════
+const _onlineUsers={};
+function addOnlineUser(username,dn,isMe){
+  _onlineUsers[username]={dn:dn||username,isMe:!!isMe};
+  renderOnlinePanel();
+}
+function removeOnlineUser(username){
+  delete _onlineUsers[username];
+  renderOnlinePanel();
+}
+function clearOnlinePanel(){
+  Object.keys(_onlineUsers).forEach(k=>delete _onlineUsers[k]);
+  renderOnlinePanel();
+}
+function renderOnlinePanel(){
+  const list=document.getElementById('onlineList');
+  const count=document.getElementById('onlineCount');
+  if(!list)return;
+  const entries=Object.entries(_onlineUsers).sort((a,b)=>{if(a[1].isMe)return -1;if(b[1].isMe)return 1;return(a[1].dn||'').localeCompare(b[1].dn||'')});
+  count.textContent=entries.length;
+  list.innerHTML='';
+  entries.forEach(([u,info])=>{
+    const row=document.createElement('div');row.className='online-row';
+    row.innerHTML=`<div class="online-av" style="background:${rc('u'+u)}">${ini(info.dn)}<div class="online-pulse"></div></div>`
+      +`<div class="online-name${info.isMe?' is-me':''}">${esc(info.dn)}${info.isMe?' (you)':''}</div>`;
+    list.appendChild(row);
+  });
+}
+
+// ═══════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════
+window.leaveServer=async()=>{
+  // Clean up voice if active
+  if(_vc.inCall){
+    if(_channel)_channel.send('vc_leave',{username:CU.u,chan_id:_vc.chanId});
+    await leaveVoiceClean();
+  }
+  if(_channel){_channel.send('offline',{username:CU.u});_channel.close();_channel=null;}
+  if(window._onlineHB){clearInterval(window._onlineHB);window._onlineHB=null;}
+  clearOnlinePanel();
+  CS=null;document.getElementById('app').style.display='none';
+  document.getElementById('homeScreen').style.display='flex';renderHomeServers();
+};
+function buildSrvStrip(){
+  const strip=document.getElementById('srvStrip');strip.innerHTML='';
+  servers.forEach(srv=>{
+    const b=document.createElement('div');b.className='spill has-tip'+(CS&&CS.code===srv.code?' active':'');
+    b.style.cssText='background:'+rc(srv.code)+';color:#fff;font-size:10px';
+    b.innerHTML=ini(srv.name)+'<div class="tip">'+esc(srv.name)+'</div>';
+    b.onclick=()=>openServer(srv);strip.appendChild(b);
+  });
+  const add=document.createElement('div');add.className='spill add';add.textContent='+';add.onclick=()=>window.showCreateModal();strip.appendChild(add);
+}
+function showView(v){
+  document.getElementById('welcomeView').style.display=v==='welcome'?'flex':'none';
+  document.getElementById('textView').style.display=v==='text'?'flex':'none';
+  document.getElementById('voiceView').style.display=v==='voice'?'flex':'none';
+  document.getElementById('bannedView').style.display=v==='banned'?'flex':'none';
+}
+
+// ═══════════════════════════════════
+//  RIGHT-CLICK CHANNEL MENU
+// ═══════════════════════════════════
+const chanCtxMenu=document.createElement('div');
+chanCtxMenu.id='chanCtxMenu';
+chanCtxMenu.style.cssText='position:fixed;background:#111118;border:1px solid #222232;border-radius:9px;z-index:200;min-width:160px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.7);display:none';
+document.body.appendChild(chanCtxMenu);
+document.addEventListener('click',()=>{chanCtxMenu.style.display='none'});
+document.addEventListener('contextmenu',()=>{chanCtxMenu.style.display='none'});
+function showChanCtx(e,chanId,type){
+  e.preventDefault();e.stopPropagation();const srv=CS;if(!srv)return;
+  chanCtxMenu.innerHTML='';
+  const canOp=roleRank(srv.myRole||'member')>=2,canAdmin=roleRank(srv.myRole||'member')>=3;
+  if(canAdmin){
+    const di=document.createElement('div');di.style.cssText='padding:9px 14px;font-size:11px;color:#e07070;cursor:pointer;transition:background 0.1s;font-family:Courier New,monospace';
+    di.textContent='🗑 delete channel';di.onmouseenter=()=>di.style.background='#2a1515';di.onmouseleave=()=>di.style.background='';
+    di.onclick=()=>{chanCtxMenu.style.display='none';deleteChannel(chanId,type)};chanCtxMenu.appendChild(di);
+  }
+  if(!chanCtxMenu.children.length)return;
+  chanCtxMenu.style.display='block';
+  chanCtxMenu.style.left=Math.min(e.clientX,window.innerWidth-180)+'px';
+  chanCtxMenu.style.top=Math.min(e.clientY,window.innerHeight-80)+'px';
+}
+document.getElementById('txtChanList').addEventListener('contextmenu',e=>{
+  e.preventDefault();const ch=e.target.closest('.ch');if(!ch)return;const srv=CS;if(!srv)return;
+  const visible=(srv.channels?.text||[]).filter(c=>canAccessChan(srv,c));
+  const idx=Array.from(ch.parentNode.children).indexOf(ch);
+  const chanId=visible[idx]?.id;if(chanId)showChanCtx(e,chanId,'text');
+});
+document.getElementById('vcChanList').addEventListener('contextmenu',e=>{
+  e.preventDefault();const ch=e.target.closest('.ch');if(!ch)return;const srv=CS;if(!srv)return;
+  const idx=Array.from(ch.parentNode.children).indexOf(ch);
+  const chanId=(srv.channels?.voice||[])[idx]?.id;if(chanId)showChanCtx(e,chanId,'voice');
+});
+
+// ═══════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ═══════════════════════════════════
+document.getElementById('srvNameIn').addEventListener('keydown',e=>{if(e.key==='Enter')window.createServer()});
+document.getElementById('joinCodeIn').addEventListener('keydown',e=>{if(e.key==='Enter')window.doJoinServer()});
+document.getElementById('chanNameIn').addEventListener('keydown',e=>{if(e.key==='Enter')window.confirmAddChan()});
+document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPass').focus()});
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin()});
+document.getElementById('regUser').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('regPass').focus()});
+document.getElementById('regPass').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('regPass2').focus()});
+document.getElementById('regPass2').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('regDisplay').focus()});
+document.getElementById('regDisplay').addEventListener('keydown',e=>{if(e.key==='Enter')window.doRegister()});
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModals()}));
+document.getElementById('txtInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendText()});
+
+// Clean up vc_presence if tab/window closes
+window.addEventListener('beforeunload',()=>{
+  // Best-effort cleanup on tab close — pg_cron cleans up any ghosts within 45s anyway
+  if(_vc.inCall&&CS&&_vc.chanId){
+    try{supa.del('vc_presence?server_code=eq.'+CS.code+'&chan_id=eq.'+_vc.chanId+'&username=eq.'+CU.u);}catch{}
+  }
+  if(CS&&CU){
+    try{supa.del('presence?server_code=eq.'+CS.code+'&username=eq.'+CU.u);}catch{}
+  }
+});
+
+// INIT
+(async()=>{try{const s=sessionStorage.getItem('cc_s');if(s){CU=JSON.parse(s);if(CU?.u){
+  // Re-fetch servers from cloud on reload
+  try{const rows=await supa.get('users?username=eq.'+encodeURIComponent(CU.u)+'&select=servers');
+    if(rows&&rows.length)servers=rows[0].servers?JSON.parse(rows[0].servers):[];
+  }catch{servers=LS.get('cc_srvs_'+CU.u)||[]}
+  enterHome();
+}else showLoginF()}else showLoginF()}catch{showLoginF()}})();
+</script>
+</body>
+</html>
