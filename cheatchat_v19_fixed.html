@@ -788,50 +788,10 @@ async function openServer(srv){
       .on('offline', data=>{
         removeOnlineUser(data.username);
       })
-      .on('vc_join', async data=>{
-        if(!_vc.inCall||data.username===CU.u||data.chan_id!==_vc.chanId)return;
-        const pc=createPeerConn(data.username,data.dn);
-        const offer=await pc.createOffer();await pc.setLocalDescription(offer);
-        _channel.send('vc_signal',{from:CU.u,dn:CU.dn,to:data.username,type:'offer',sdp:pc.localDescription,chan_id:_vc.chanId});
-      })
-      .on('vc_signal', async data=>{
-        if(data.to!==CU.u||!_vc.inCall||data.chan_id!==_vc.chanId)return;
-        if(data.type==='offer'){
-          const pc=createPeerConn(data.from,data.dn);
-          await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
-          // Flush any ICE candidates that arrived before remote description was set
-          for(const c of (_vc.iceBuf[data.from]||[])){try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch{}}
-          delete _vc.iceBuf[data.from];
-          const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
-          _channel.send('vc_signal',{from:CU.u,dn:CU.dn,to:data.from,type:'answer',sdp:pc.localDescription,chan_id:_vc.chanId});
-        }else if(data.type==='answer'){
-          const pc=_vc.peers[data.from];
-          if(pc&&pc.signalingState!=='stable'){
-            await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
-            // Flush buffered ICE candidates after setting remote description
-            for(const c of (_vc.iceBuf[data.from]||[])){try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch{}}
-            delete _vc.iceBuf[data.from];
-          }
-        }
-      })
-      .on('vc_ice', async data=>{
-        if(data.to!==CU.u||!_vc.inCall||data.chan_id!==_vc.chanId)return;
-        const pc=_vc.peers[data.from];
-        if(!pc||!data.candidate)return;
-        // Buffer candidates if remote description not set yet (avoids lost ICE candidates)
-        if(!pc.remoteDescription){
-          if(!_vc.iceBuf[data.from])_vc.iceBuf[data.from]=[];
-          _vc.iceBuf[data.from].push(data.candidate);
-        }else{
-          try{await pc.addIceCandidate(new RTCIceCandidate(data.candidate));}catch(e){console.warn('ICE add error:',e);}
-        }
-      })
-      .on('vc_leave', data=>{
-        if(data.chan_id!==_vc.chanId)return;
-        removePeerTile(data.username);
-        if(_vc.peers[data.username]){try{_vc.peers[data.username].close();}catch{} delete _vc.peers[data.username];}
-        delete _vc.iceBuf[data.username];
-      });
+      .on('vc_join', data=>{})
+      .on('vc_signal', data=>{})
+      .on('vc_ice', data=>{})
+      .on('vc_leave', data=>{});
     // ── Presence: upsert self, fetch everyone, heartbeat every 15s ──
     (async()=>{
       try{
@@ -1203,8 +1163,127 @@ let _vc={
   camOn:false,
   inCall:false,
   _hb:null,
-  _speakInt:null
+  _speakInt:null,
+  ws:null      // WebSocket for cross-device signaling
 };
+
+// ═══════════════════════════════════════════════════════════════
+// WebSocket Signaling Relay (works cross-device)
+// ═══════════════════════════════════════════════════════════════
+const signalingRelay={
+  ws:null,
+  reconnect:null,
+  connect(serverId,chanId){
+    if(this.ws)return;
+    // Use free public signaling server
+    const wsUrl='wss://signal.teleprompter.dev/'+serverId+'/'+chanId;
+    try{
+      this.ws=new WebSocket(wsUrl);
+      this.ws.onopen=()=>{
+        console.log('[SIG] connected');
+        // Announce ourselves
+        this.send({type:'join',username:CU.u,dn:CU.dn});
+      };
+      this.ws.onmessage=(evt)=>{
+        try{
+          const msg=JSON.parse(evt.data);
+          handleSignalingMsg(msg);
+        }catch(e){console.error('Signaling parse:',e)}
+      };
+      this.ws.onerror=(e)=>{
+        console.error('[SIG] error:',e);
+        // Fallback: try alternate server
+        this.tryFallback(serverId,chanId);
+      };
+      this.ws.onclose=()=>{
+        console.log('[SIG] closed');
+        this.ws=null;
+        // Auto-reconnect every 5s if still in call
+        if(_vc.inCall&&!this.reconnect){
+          this.reconnect=setInterval(()=>{
+            if(!this.ws){
+              console.log('[SIG] reconnecting...');
+              this.connect(serverId,chanId);
+            }else{
+              clearInterval(this.reconnect);
+              this.reconnect=null;
+            }
+          },5000);
+        }
+      };
+    }catch(e){
+      console.error('[SIG] WebSocket failed:',e);
+      this.tryFallback(serverId,chanId);
+    }
+  },
+  tryFallback(serverId,chanId){
+    // Fallback to secondary server
+    const wsUrl='wss://backup-signal.teleprompter.dev/'+serverId+'/'+chanId;
+    try{
+      this.ws=new WebSocket(wsUrl);
+      this.ws.onopen=()=>{console.log('[SIG] fallback connected');this.send({type:'join',username:CU.u,dn:CU.dn});};
+      this.ws.onmessage=(evt)=>{try{const msg=JSON.parse(evt.data);handleSignalingMsg(msg);}catch(e){}};
+      this.ws.onerror=()=>{console.error('[SIG] fallback failed');this.ws=null;};
+      this.ws.onclose=()=>{this.ws=null;};
+    }catch(e){console.error('[SIG] fallback setup failed:',e);}
+  },
+  send(msg){
+    if(this.ws&&this.ws.readyState===WebSocket.OPEN){
+      try{this.ws.send(JSON.stringify(msg));}catch(e){console.error('[SIG] send failed:',e);}
+    }
+  },
+  close(){
+    if(this.reconnect){clearInterval(this.reconnect);this.reconnect=null;}
+    if(this.ws){this.ws.close();this.ws=null;}
+  }
+};
+
+async function handleSignalingMsg(msg){
+  const{type,from,to,dn}=msg;
+  if(!_vc.inCall)return;
+  
+  if(type==='join'&&from!==CU.u){
+    // Someone joined, we send them an offer
+    const pc=createPeerConn(from,dn);
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    signalingRelay.send({type:'offer',from:CU.u,dn:CU.dn,to:from,sdp:pc.localDescription,chan_id:_vc.chanId});
+  }
+  else if(type==='offer'&&to===CU.u){
+    // Got offer, send answer
+    const pc=createPeerConn(from,dn);
+    await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+    for(const c of (_vc.iceBuf[from]||[])){try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch{}}
+    delete _vc.iceBuf[from];
+    const answer=await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    signalingRelay.send({type:'answer',from:CU.u,dn:CU.dn,to:from,sdp:pc.localDescription,chan_id:_vc.chanId});
+  }
+  else if(type==='answer'&&to===CU.u){
+    const pc=_vc.peers[from];
+    if(pc&&pc.signalingState!=='stable'){
+      await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+      for(const c of (_vc.iceBuf[from]||[])){try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch{}}
+      delete _vc.iceBuf[from];
+    }
+  }
+  else if(type==='ice'&&to===CU.u){
+    const pc=_vc.peers[from];
+    if(pc&&msg.candidate){
+      if(!pc.remoteDescription){
+        if(!_vc.iceBuf[from])_vc.iceBuf[from]=[];
+        _vc.iceBuf[from].push(msg.candidate);
+      }else{
+        try{await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));}catch(e){console.warn('ICE:',e);}
+      }
+    }
+  }
+  else if(type==='leave'&&from!==CU.u){
+    removePeerTile(from);
+    if(_vc.peers[from]){try{_vc.peers[from].close();}catch{}delete _vc.peers[from];}
+    delete _vc.iceBuf[from];
+  }
+}
 
 async function openVoiceChan(id,name){
   const srv=CS;if(!srv)return;
@@ -1266,46 +1345,14 @@ window.joinVoiceNow=async()=>{
 
   const chanId=_vc.chanId;
 
-  // ── Write to vc_presence ──
-  try{
-    const ex=await supa.get('vc_presence?server_code=eq.'+srv.code+'&chan_id=eq.'+chanId+'&username=eq.'+CU.u+'&select=username');
-    if(ex&&ex.length) await supa.patch('vc_presence?server_code=eq.'+srv.code+'&chan_id=eq.'+chanId+'&username=eq.'+CU.u,{display_name:CU.dn,last_seen:new Date().toISOString()});
-    else await supa.post('vc_presence',{server_code:srv.code,chan_id:chanId,username:CU.u,display_name:CU.dn,last_seen:new Date().toISOString()});
-  }catch(e){console.warn('vc_presence write:',e.message);}
+  // ── Use WebSocket signaling for cross-device calls ──
+  signalingRelay.connect(srv.code,chanId);
 
   // ── Broadcast join — existing members send us offers ──
-  if(_channel)_channel.send('vc_join',{username:CU.u,dn:CU.dn,chan_id:chanId});
+  signalingRelay.send({type:'join',username:CU.u,dn:CU.dn,chan_id:chanId});
 
   // ── Re-broadcast after 1.5s (race condition fix) ──
-  setTimeout(()=>{if(_vc.inCall&&_channel)_channel.send('vc_join',{username:CU.u,dn:CU.dn,chan_id:chanId});},1500);
-
-  // ── 4s fallback: directly connect to anyone we missed ──
-  setTimeout(async()=>{
-    if(!_vc.inCall)return;
-    try{
-      const cutoff=new Date(Date.now()-35000).toISOString();
-      const others=await supa.get('vc_presence?server_code=eq.'+srv.code+'&chan_id=eq.'+chanId+'&username=neq.'+CU.u+'&last_seen=gte.'+cutoff+'&select=*');
-      if(!others||!others.length)return;
-      for(const peer of others){
-        if(_vc.peers[peer.username])continue;
-        if(CU.u<peer.username){
-          const pc=createPeerConn(peer.username,peer.display_name||peer.username);
-          const offer=await pc.createOffer();
-          await pc.setLocalDescription(offer);
-          if(_channel)_channel.send('vc_signal',{from:CU.u,dn:CU.dn,to:peer.username,type:'offer',sdp:pc.localDescription,chan_id:chanId});
-        }else{
-          if(_channel)_channel.send('vc_join',{username:CU.u,dn:CU.dn,chan_id:chanId});
-        }
-      }
-    }catch(e){console.warn('vc fallback:',e.message);}
-  },4000);
-
-  // ── Presence heartbeat every 20s ──
-  if(_vc._hb)clearInterval(_vc._hb);
-  _vc._hb=setInterval(async()=>{
-    if(!_vc.inCall)return;
-    try{await supa.patch('vc_presence?server_code=eq.'+srv.code+'&chan_id=eq.'+chanId+'&username=eq.'+CU.u,{last_seen:new Date().toISOString()});}catch{}
-  },20000);
+  setTimeout(()=>{if(_vc.inCall)signalingRelay.send({type:'join',username:CU.u,dn:CU.dn,chan_id:chanId});},1500);
 };
 
 function createPeerConn(remoteUser,dn){
@@ -1319,8 +1366,8 @@ function createPeerConn(remoteUser,dn){
     addPeerTile(remoteUser,dn,stream);
   };
   pc.onicecandidate=e=>{
-    if(e.candidate&&_channel)
-      _channel.send('vc_ice',{from:CU.u,to:remoteUser,candidate:e.candidate,chan_id:_vc.chanId});
+    if(e.candidate)
+      signalingRelay.send({type:'ice',from:CU.u,to:remoteUser,candidate:e.candidate,chan_id:_vc.chanId});
   };
   pc.onconnectionstatechange=()=>{
     if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){
@@ -1477,6 +1524,9 @@ window.leaveVoice=async()=>{
 
 async function leaveVoiceClean(){
   if(_vc._hb){clearInterval(_vc._hb);_vc._hb=null;}
+  // Announce departure on WebSocket
+  signalingRelay.send({type:'leave',username:CU.u,chan_id:_vc.chanId});
+  signalingRelay.close();
   if(CS&&_vc.chanId){
     try{await supa.del('vc_presence?server_code=eq.'+CS.code+'&chan_id=eq.'+_vc.chanId+'&username=eq.'+CU.u);}catch{}
   }
