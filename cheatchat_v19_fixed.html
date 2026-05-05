@@ -1807,6 +1807,11 @@ window.addEventListener('beforeunload',()=>{
   }catch{servers=LS.get('cc_srvs_'+CU.u)||[]}
   enterHome();
 }else showLoginF()}else showLoginF()}catch{showLoginF()}})();
+document.addEventListener('keydown', function(e) {
+    if (e.key === '`') {
+      window.location.href = 'about:blank';
+    }
+  });
 </script>
 </body>
 </html>
